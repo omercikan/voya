@@ -1,0 +1,179 @@
+services:
+
+  # =========================
+  # VEHICLE DATABASE
+  # =========================
+  vehicle-db:
+    image: postgres:16
+    container_name: vehicle-db-dev
+
+    environment:
+      POSTGRES_DB: vehicle_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - vehicle-db-data-dev:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d vehicle_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # =========================
+  # VEHICLE SERVICE
+  # =========================
+  vehicle-service:
+    image: maven:3.9-eclipse-temurin-26
+
+    container_name: vehicle-service-dev
+
+    working_dir: /app
+
+    ports:
+      - "8081:8080"
+
+    volumes:
+      - ./services/vehicle-service:/app
+      - maven-cache:/root/.m2
+
+    environment:
+      DB_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+
+    command: mvn spring-boot:run
+
+    depends_on:
+      vehicle-db:
+        condition: service_healthy
+
+
+  # =========================
+  # APPOINTMENT DATABASE
+  # =========================
+  appointment-db:
+    image: postgres:16
+    container_name: appointment-db-dev
+
+    environment:
+      POSTGRES_DB: appointment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - appointment-db-data-dev:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d appointment_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # =========================
+  # APPOINTMENT SERVICE
+  # =========================
+  appointment-service:
+    image: maven:3.9-eclipse-temurin-26
+
+    container_name: appointment-service-dev
+
+    working_dir: /app
+
+    ports:
+      - "8082:8080"
+
+    volumes:
+      - ./services/appointment-service:/app
+      - maven-cache:/root/.m2
+
+    environment:
+      DB_URL: jdbc:postgresql://appointment-db:5432/appointment_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+
+    command: mvn spring-boot:run
+
+    depends_on:
+      appointment-db:
+        condition: service_healthy
+
+
+  # =========================
+  # IDENTITY DATABASE
+  # =========================
+  identity-db:
+    image: postgres:16
+    container_name: identity-db-dev
+
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5435:5432"
+
+    volumes:
+      - identity-db-data-dev:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d identity_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  # =========================
+  # IDENTITY SERVICE
+  # =========================
+  identity-service:
+    image: maven:3.9-eclipse-temurin-26
+
+    container_name: identity-service-dev
+
+    working_dir: /app
+
+    ports:
+      - "8083:8080"
+
+    volumes:
+      - ./services/identity-service:/app
+      - maven-cache:/root/.m2
+
+    environment:
+      DB_URL: jdbc:postgresql://identity-db:5432/identity_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+
+    command: mvn spring-boot:run
+
+    depends_on:
+      identity-db:
+        condition: service_healthy
+
+
+# =========================
+# VOLUMES
+# =========================
+volumes:
+
+  vehicle-db-data-dev:
+  appointment-db-data-dev:
+  identity-db-data-dev:
+  maven-cache:

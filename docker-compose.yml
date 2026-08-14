@@ -1,0 +1,96 @@
+services:
+
+  # =========================
+  # VEHICLE SERVICE
+  # =========================
+  vehicle-db:
+    image: postgres:16
+    container_name: vehicle-db
+    environment:
+      POSTGRES_DB: vehicle_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - vehicle-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d vehicle_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  vehicle-service:
+    build: ./services/vehicle-service
+    container_name: vehicle-service
+    ports:
+      - "8081:8080"
+    environment:
+      DB_URL: jdbc:postgresql://vehicle-db:5432/vehicle_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      vehicle-db:
+        condition: service_healthy
+
+
+  # =========================
+  # APPOINTMENT SERVICE
+  # =========================
+  appointment-db:
+    image: postgres:16
+    container_name: appointment-db
+    environment:
+      POSTGRES_DB: appointment_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - appointment-db-data:/var/lib/postgresql/data
+
+  appointment-service:
+    build: ./services/appointment-service
+    container_name: appointment-service
+    ports:
+      - "8082:8080"
+    environment:
+      DB_URL: jdbc:postgresql://appointment-db:5432/appointment_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - appointment-db
+
+
+  # =========================
+  # IDENTITY SERVICE
+  # =========================
+  identity-db:
+    image: postgres:16
+    container_name: identity-db
+    environment:
+      POSTGRES_DB: identity_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - identity-db-data:/var/lib/postgresql/data
+
+  identity-service:
+    build: ./services/identity-service
+    container_name: identity-service
+    ports:
+      - "8083:8080"
+    environment:
+      DB_URL: jdbc:postgresql://identity-db:5432/identity_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - identity-db
+
+
+volumes:
+  vehicle-db-data:
+  appointment-db-data:
+  identity-db-data:
