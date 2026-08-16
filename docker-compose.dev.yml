@@ -158,6 +158,7 @@ services:
       DB_URL: jdbc:postgresql://identity-db:5432/identity_db
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET}
 
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
 
