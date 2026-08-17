@@ -87,18 +87,18 @@ Each service is fully independent: its own codebase, its own database, its own c
 
 ```
 yaltes-vehicle-appointment/
-├── docker-compose.yml            # Production-like orchestration (builds service images)
-├── docker-compose.dev.yml        # Development orchestration (hot-reload via Maven)
-├── docs/                         # Project documentation
+├── docker-compose.yml              # Production-like orchestration (builds service images)
+├── docker-compose.dev.yml          # Development orchestration (hot-reload via Maven)
+├── docs/                           # Project documentation
 ├── frontend/
-│   └── web/                      # Frontend application (not yet implemented)
+│   └── web/                        # Frontend application (not yet implemented)
 ├── gateway/
-│   └── api-gateway/               # API Gateway service (not yet implemented)
+│   └── api-gateway/                # API Gateway service (not yet implemented)
 ├── infrastructure/
-│   ├── docker/                    # Shared Docker resources
-│   └── redis/                     # Redis configuration (not yet implemented)
+│   ├── docker/                     # Shared Docker resources
+│   └── redis/                      # Redis configuration (not yet implemented)
 └── services/
-    ├── identity-service/          # User management, auth, and access control
+    ├── identity-service/           # User management, auth, and access control
     ├── vehicle-service/            # Vehicle records (skeleton)
     └── appointment-service/        # Appointment scheduling (skeleton)
 ```
