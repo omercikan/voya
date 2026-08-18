@@ -3,7 +3,9 @@ package com.yaltes.identity_service.service;
 import com.yaltes.identity_service.dto.CreateUserRequest;
 import com.yaltes.identity_service.dto.UserResponse;
 import com.yaltes.identity_service.entity.User;
+import com.yaltes.identity_service.enums.Role;
 import com.yaltes.identity_service.exception.EmailAlreadyExistsException;
+import com.yaltes.identity_service.exception.UnauthorizedUserException;
 import com.yaltes.identity_service.mapper.UserMapper;
 import com.yaltes.identity_service.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +23,13 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserResponse createUser(CreateUserRequest request) {
+    public UserResponse createUser(CreateUserRequest request, Role role) {
+        if(!role.equals(Role.ADMIN)) {
+            throw new UnauthorizedUserException("Bu işlemi yapacak yetkiniz yok!");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException("Email adresi zaten var");
+            throw new EmailAlreadyExistsException("Email adresi zaten var!");
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
