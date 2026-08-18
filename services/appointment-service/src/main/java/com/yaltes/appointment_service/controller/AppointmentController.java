@@ -1,5 +1,6 @@
 package com.yaltes.appointment_service.controller;
 
+import com.yaltes.appointment_service.dto.ApiResponse;
 import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.entity.AppointmentStatus;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -34,11 +36,11 @@ public class AppointmentController {
                 appointment.getDateEnd());
 
         if (!overlapping.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Bu arac, secilen tarih araliginda baska bir randevuya sahip");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(true, "Bu arac, secilen tarih araliginda baska bir randevuya sahip"));
         }
 
         Appointment saved = repository.save(appointment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("data", saved, "succes", true));
     }
 
     @GetMapping("/vehicle/{vehicleId}/busy")
