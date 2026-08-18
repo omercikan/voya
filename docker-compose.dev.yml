@@ -1,4 +1,23 @@
 services:
+  # =========================
+  # API GATEWAY
+  # =========================
+  api-gateway:
+    image: maven:3.9-eclipse-temurin-26
+    container_name: api-gateway-dev
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      IDENTITY_URL: ${IDENTITY_URL}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    command: mvn spring-boot:run
+    volumes:
+      - ./gateway/api-gateway:/app
+      - maven-cache:/root/.m2
+    depends_on:
+      - identity-service
 
   # =========================
   # VEHICLE DATABASE
@@ -158,6 +177,7 @@ services:
       DB_URL: jdbc:postgresql://identity-db:5432/identity_db
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET}
 
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
 

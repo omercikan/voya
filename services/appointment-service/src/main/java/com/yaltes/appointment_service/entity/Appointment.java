@@ -1,9 +1,6 @@
 package com.yaltes.appointment_service.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -16,107 +13,88 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
-    @NotNull(message = "dateStart zorunludur")
-    @Column(name = "date_start")
     private LocalDate dateStart;
-
-    @NotNull(message = "dateEnd zorunludur")
-    @Column(name = "date_end")
     private LocalDate dateEnd;
-
-    @NotNull(message = "hourStart zorunludur")
-    @Column(name = "hour_start")
     private LocalTime hourStart;
-
-    @NotNull(message = "hourEnd zorunludur")
-    @Column(name = "hour_end")
     private LocalTime hourEnd;
 
-    @NotNull(message = "vehicleId zorunludur")
-    @Column(name = "vehicle_id")
     private UUID vehicleId;
+    private String vehiclePlate;
+    private String vehicleBrand;
+    private String vehicleModel;
+    private Integer vehicleYear;
+    private String vehicleGear;
+    private Integer vehicleKm;
+    private String vehicleFuel;
+    private String vehicleLocation;
 
-    @NotNull(message = "customerId zorunludur")
-    @Column(name = "customer_id")
     private UUID customerId;
+    private String customerFullName;
+    private String customerNumber;
+    private String customerMail;
 
-    @Size(max = 500, message = "note en fazla 500 karakter olabilir")
-    @Column(name = "note")
     private String note;
 
-    public UUID getId() {
-        return id;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public AppointmentStatus getStatus() { return status; }
+    public void setStatus(AppointmentStatus status) { this.status = status; }
 
-    public AppointmentStatus getStatus() {
-        return status;
-    }
+    public LocalDate getDateStart() { return dateStart; }
+    public void setDateStart(LocalDate dateStart) { this.dateStart = dateStart; }
 
-    public void setStatus(AppointmentStatus status) {
-        this.status = status;
-    }
+    public LocalDate getDateEnd() { return dateEnd; }
+    public void setDateEnd(LocalDate dateEnd) { this.dateEnd = dateEnd; }
 
-    public LocalDate getDateStart() {
-        return dateStart;
-    }
+    public LocalTime getHourStart() { return hourStart; }
+    public void setHourStart(LocalTime hourStart) { this.hourStart = hourStart; }
 
-    public void setDateStart(LocalDate dateStart) {
-        this.dateStart = dateStart;
-    }
+    public LocalTime getHourEnd() { return hourEnd; }
+    public void setHourEnd(LocalTime hourEnd) { this.hourEnd = hourEnd; }
 
-    public LocalDate getDateEnd() {
-        return dateEnd;
-    }
+    public UUID getVehicleId() { return vehicleId; }
+    public void setVehicleId(UUID vehicleId) { this.vehicleId = vehicleId; }
 
-    public void setDateEnd(LocalDate dateEnd) {
-        this.dateEnd = dateEnd;
-    }
+    public String getVehiclePlate() { return vehiclePlate; }
+    public void setVehiclePlate(String vehiclePlate) { this.vehiclePlate = vehiclePlate; }
 
-    public LocalTime getHourStart() {
-        return hourStart;
-    }
+    public String getVehicleBrand() { return vehicleBrand; }
+    public void setVehicleBrand(String vehicleBrand) { this.vehicleBrand = vehicleBrand; }
 
-    public void setHourStart(LocalTime hourStart) {
-        this.hourStart = hourStart;
-    }
+    public String getVehicleModel() { return vehicleModel; }
+    public void setVehicleModel(String vehicleModel) { this.vehicleModel = vehicleModel; }
 
-    public LocalTime getHourEnd() {
-        return hourEnd;
-    }
+    public Integer getVehicleYear() { return vehicleYear; }
+    public void setVehicleYear(Integer vehicleYear) { this.vehicleYear = vehicleYear; }
 
-    public void setHourEnd(LocalTime hourEnd) {
-        this.hourEnd = hourEnd;
-    }
+    public String getVehicleGear() { return vehicleGear; }
+    public void setVehicleGear(String vehicleGear) { this.vehicleGear = vehicleGear; }
 
-    public UUID getVehicleId() {
-        return vehicleId;
-    }
+    public Integer getVehicleKm() { return vehicleKm; }
+    public void setVehicleKm(Integer vehicleKm) { this.vehicleKm = vehicleKm; }
 
-    public void setVehicleId(UUID vehicleId) {
-        this.vehicleId = vehicleId;
-    }
+    public String getVehicleFuel() { return vehicleFuel; }
+    public void setVehicleFuel(String vehicleFuel) { this.vehicleFuel = vehicleFuel; }
 
-    public UUID getCustomerId() {
-        return customerId;
-    }
+    public String getVehicleLocation() { return vehicleLocation; }
+    public void setVehicleLocation(String vehicleLocation) { this.vehicleLocation = vehicleLocation; }
 
-    public void setCustomerId(UUID customerId) {
-        this.customerId = customerId;
-    }
+    public UUID getCustomerId() { return customerId; }
+    public void setCustomerId(UUID customerId) { this.customerId = customerId; }
 
-    public String getNote() {
-        return note;
-    }
+    public String getCustomerFullName() { return customerFullName; }
+    public void setCustomerFullName(String customerFullName) { this.customerFullName = customerFullName; }
 
-    public void setNote(String note) {
-        this.note = note;
-    }
+    public String getCustomerNumber() { return customerNumber; }
+    public void setCustomerNumber(String customerNumber) { this.customerNumber = customerNumber; }
+
+    public String getCustomerMail() { return customerMail; }
+    public void setCustomerMail(String customerMail) { this.customerMail = customerMail; }
+
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
 }

@@ -6,8 +6,6 @@ import com.yaltes.appointment_service.repository.AppointmentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -16,14 +14,13 @@ import java.util.UUID;
 public class AppointmentController {
 
     private final AppointmentRepository repository;
-
     public AppointmentController(AppointmentRepository repository) {
         this.repository = repository;
     }
 
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody Appointment appointment) {
+    public ResponseEntity<?> create(@RequestBody Appointment appointment) {
         if (appointment.getStatus() == null) {
             appointment.setStatus(AppointmentStatus.PENDING);
         }
@@ -60,7 +57,7 @@ public class AppointmentController {
     }
 
 
-    @PatchMapping("/{id}")
+   @PatchMapping("/{id}")
     public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status) {
 
         return repository.findById(id)
