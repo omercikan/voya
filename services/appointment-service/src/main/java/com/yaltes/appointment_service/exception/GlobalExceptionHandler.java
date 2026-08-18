@@ -26,6 +26,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("errors", fieldErrors);
+        body.put("success", false);
 
         return ResponseEntity.badRequest().body(body);
     }
@@ -36,6 +37,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("message", "Beklenmeyen bir hata olustu");
+        body.put("success", false);
 
         return ResponseEntity.internalServerError().body(body);
     }
