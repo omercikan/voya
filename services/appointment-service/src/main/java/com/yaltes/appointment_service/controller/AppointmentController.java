@@ -57,11 +57,12 @@ public class AppointmentController {
     }
 
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id,@RequestParam AppointmentStatus status) {
+   @PatchMapping("/{id}")
+    public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status) {
 
         return repository.findById(id)
-                .map(appointment -> { appointment.setStatus(status);
+                .map(appointment -> {
+                    appointment.setStatus(status);
                     return ResponseEntity.ok(repository.save(appointment));
                 })
                 .orElse(ResponseEntity.notFound().build());
