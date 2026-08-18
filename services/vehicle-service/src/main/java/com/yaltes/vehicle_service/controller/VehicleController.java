@@ -1,34 +1,60 @@
 package com.yaltes.vehicle_service.controller;
 
-import com.yaltes.vehicle_service.entity.Vehicle;
-import com.yaltes.vehicle_service.repository.VehicleRepository;
+import com.yaltes.vehicle_service.dto.VehicleRequest;
+import com.yaltes.vehicle_service.dto.VehicleResponse;
+import com.yaltes.vehicle_service.service.VehicleService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/api/vehicles")
 public class VehicleController {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleService vehicleService;
 
-    public VehicleController(VehicleRepository vehicleRepository) {
-        this.vehicleRepository = vehicleRepository;
+    public VehicleController(VehicleService vehicleService) {
+        this.vehicleService = vehicleService;
     }
 
-    // POST
+    // POST /api/vehicles
     @PostMapping
-    public Vehicle createVehicle(@RequestBody Vehicle vehicle) {
-        return vehicleRepository.save(vehicle);
+    public ResponseEntity<VehicleResponse> createVehicle(@RequestBody VehicleRequest request,@RequestHeader(value = "X-User-Role") String userRole) {
+        VehicleResponse response = vehicleService.createVehicle(request, userRole);
+        return new ResponseEntity<>(response, HttpStatus.CREATED); // HTTP 201
     }
-    // GET
-    @GetMapping
-    public List<Vehicle> findAll(){ return vehicleRepository.findAll(); }
-    // PATCH
-    @PatchMapping
-    public Vehicle update(@RequestBody Vehicle vehicle) {return vehicleRepository.save(vehicle); }
-    // DELETE
-    @DeleteMapping
-    public void delete(@RequestBody Vehicle vehicle) {}
 
+    // GET /api/vehicles
+    @GetMapping
+    public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
+        return ResponseEntity.ok(vehicleService.getAllVehicles()); // HTTP 200
+    }
+
+    // GET /api/vehicles/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<VehicleResponse> getVehicleById(@PathVariable Long id) {
+        return vehicleService.getVehicle(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // PATCH /api/vehicles/{id}
+    @PatchMapping("/{id}")
+    public ResponseEntity<VehicleResponse> updateVehicle(@PathVariable Long id, @RequestBody VehicleRequest request) {
+        return vehicleService.updateVehicle(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/vehicles/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
+        boolean deleted = vehicleService.deleteVehicle(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // HTTP 204
+        }
+        return ResponseEntity.notFound().build(); // HTTP 404
+    }
 }
