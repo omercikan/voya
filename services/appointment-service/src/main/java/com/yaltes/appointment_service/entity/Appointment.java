@@ -1,6 +1,7 @@
 package com.yaltes.appointment_service.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -43,6 +44,11 @@ public class Appointment {
     @NotNull(message = "customerId zorunludur")
     @Column(name = "customer_id")
     private UUID customerId;
+
+    @NotBlank(message = "purpose zorunludur")
+    @Size(max = 500, message = "purpose en fazla 500 karakter olabilir")
+    @Column(name = "purpose")
+    private String purpose;
 
     @Size(max = 500, message = "note en fazla 500 karakter olabilir")
     @Column(name = "note")
@@ -112,11 +118,19 @@ public class Appointment {
         this.customerId = customerId;
     }
 
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
     public String getNote() {
         return note;
     }
 
-    public void setNote(String note) {
+    public void setNote(String purpose) {
         this.note = note;
     }
 }
