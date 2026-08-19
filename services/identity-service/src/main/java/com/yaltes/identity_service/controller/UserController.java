@@ -34,4 +34,14 @@ public class UserController {
         UserResponse updatedUser = userService.updateUser(id, request, callerId, callerRole);
         return ResponseEntity.ok().body(ApiResponse.success(updatedUser));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Role") Role userRole,
+            @RequestHeader(value = "X-User-Id") Long callerId
+    ) {
+        userService.deleteUser(id, userRole, callerId);
+        return ResponseEntity.noContent().build();
+    }
 }

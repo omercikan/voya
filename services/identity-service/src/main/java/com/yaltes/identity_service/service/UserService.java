@@ -76,4 +76,18 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return userMapper.toResponse(savedUser);
     }
+
+    public void deleteUser(Long targetId, Role callerRole, Long callerId) {
+        if (!callerRole.equals(Role.ADMIN)) {
+            throw new UnauthorizedUserException("Bu kullanıcıyı silme yetkiniz yok!");
+        }
+
+        if (callerId.equals(targetId)) {
+            throw new UnauthorizedUserException("Kendi hesabınızı silemezsiniz.");
+        }
+
+        User user = userRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
+
+        userRepository.delete(user);
+    }
 }
