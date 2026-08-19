@@ -4,14 +4,15 @@ import com.yaltes.vehicle_service.dto.VehicleRequest;
 import com.yaltes.vehicle_service.exception.ValidationException;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Component
 public class VehicleValidator {
 
     public void normalizeAndValidate(VehicleRequest request) {
-        Map<String,String> errors = new HashMap<>();
+        List<String> errors = new ArrayList<>();
 
         normalizePlate(request);
 
@@ -40,24 +41,23 @@ public class VehicleValidator {
     }
 
     // Plate exception catcher
-    private void validatePlateFormat(String plate, Map<String,String> errors) {
+    private void validatePlateFormat(String plate, List<String> errors) {
         if (plate != null && !plate.matches("^\\d{2}[A-Z]{1,3}\\d{2,4}$")) {
-            errors.put("plate","Plaka formatı geçersiz: " + plate);
+            errors.add("Plaka formatı geçersiz: " + plate);
         }
     }
 
     // Kilometer exception catcher
-    private void validateKm(Integer km, Map<String,String> errors) {
-        if (km != null && km <= 0) {
-            errors.put("km","Kilometre 0'dan küçük olamaz: " + km);
+    private void validateKm(Integer km, List<String> errors) {
+        if (km != null && km < 0) {
+            errors.add("Kilometre 0'dan küçük olamaz: " + km);
         }
     }
 
     // Year exception catcher
-    private void validateYear(Integer year, Map<String,String> errors) {
-        int currentYear = LocalDate.now().getYear();
-        if (year != null && (year < 1950 || year > currentYear)) {
-            errors.put("year","Geçersiz araç yılı: " + year);
+    private void validateYear(Integer year, List<String> errors) {
+        if (year != null && (year < 1900 || year > 2027)) {
+            errors.add("Geçersiz araç yılı: " + year);
         }
     }
 

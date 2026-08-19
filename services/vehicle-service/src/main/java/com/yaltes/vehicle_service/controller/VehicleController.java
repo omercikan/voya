@@ -21,8 +21,8 @@ public class VehicleController {
 
     // POST /api/vehicles
     @PostMapping
-    public ResponseEntity<VehicleResponse> createVehicle(@RequestBody VehicleRequest request) {
-        VehicleResponse response = vehicleService.createVehicle(request);
+    public ResponseEntity<VehicleResponse> createVehicle(@RequestBody VehicleRequest request,@RequestHeader(value = "X-User-Role") String userRole) {
+        VehicleResponse response = vehicleService.createVehicle(request, userRole);
         return new ResponseEntity<>(response, HttpStatus.CREATED); // HTTP 201
     }
 

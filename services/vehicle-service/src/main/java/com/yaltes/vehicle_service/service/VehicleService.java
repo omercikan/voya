@@ -5,12 +5,12 @@ import com.yaltes.vehicle_service.component.VehicleValidator;
 import com.yaltes.vehicle_service.dto.VehicleRequest;
 import com.yaltes.vehicle_service.dto.VehicleResponse;
 import com.yaltes.vehicle_service.entity.Vehicle;
+import com.yaltes.vehicle_service.exception.RoleException;
 import com.yaltes.vehicle_service.exception.ValidationException;
 import com.yaltes.vehicle_service.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,17 +28,16 @@ public class VehicleService {
     }
 
     // Create
-    public VehicleResponse createVehicle(VehicleRequest request) {
+    public VehicleResponse createVehicle(VehicleRequest request,String userRole) {
 
-       /* if(!userRole.equals("ADMIN")) {
+        if(!userRole.equals("ADMIN")) {
             throw new RoleException("Geçersiz rol.");
         }
-        */
 
         validator.normalizeAndValidate(request);
 
         if (repository.existsByPlate(request.getPlate())) {
-            throw new ValidationException(Map.of("plate","Bu plaka zaten kayıtlı: " + request.getPlate()));
+            throw new ValidationException(List.of("Bu plaka zaten kayıtlı: " + request.getPlate()));
         }
 
         Vehicle vehicle = mapper.toEntity(request);
@@ -65,7 +64,7 @@ public class VehicleService {
 
             if (patchData.getPlate() != null && !patchData.getPlate().equals(existing.getPlate())) {
                 if (repository.existsByPlate(patchData.getPlate())) {
-                    throw new ValidationException(Map.of("plate","Bu plaka başka bir araca kayıtlı!"));
+                    throw new ValidationException(List.of("Bu plaka başka bir araca kayıtlı!"));
                 }
             }
 
