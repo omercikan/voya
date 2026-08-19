@@ -1,0 +1,26 @@
+import type { Metadata } from "next";
+import { Manrope } from "next/font/google";
+import "./globals.css";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "Yaltes | Araç Randevu Sistemi",
+    template: "%s | Yaltes",
+  },
+  description: "Yaltes araç bakım ve servis randevu yönetim platformu.",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="tr" className={manrope.variable}>
+      <body>{children}</body>
+    </html>
+  );
+}
