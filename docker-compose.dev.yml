@@ -61,6 +61,7 @@ services:
 
     volumes:
       - ./services/vehicle-service:/app
+      - vehicle-target:/app/target
       - maven-cache:/root/.m2
 
     environment:
@@ -117,6 +118,7 @@ services:
 
     volumes:
       - ./services/appointment-service:/app
+      - appointment-target:/app/target
       - maven-cache:/root/.m2
 
     environment:
@@ -173,6 +175,7 @@ services:
 
     volumes:
       - ./services/identity-service:/app
+      - identity-target:/app/target 
       - maven-cache:/root/.m2
 
     environment:
@@ -199,3 +202,7 @@ volumes:
   appointment-db-data-dev:
   identity-db-data-dev:
   maven-cache:
+  identity-target:      
+  vehicle-target:       
+  appointment-target: 
+  gateway-target:
