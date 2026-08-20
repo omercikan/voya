@@ -3,6 +3,7 @@ package com.yaltes.vehicle_service.component;
 import com.yaltes.vehicle_service.dto.VehicleRequest;
 import com.yaltes.vehicle_service.dto.VehicleResponse;
 import com.yaltes.vehicle_service.entity.Vehicle;
+import com.yaltes.vehicle_service.enums.AvailabilityStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,6 +20,7 @@ public class VehicleMapper {
         vehicle.setKm(request.getKm());
         vehicle.setFuel(request.getFuel());
         vehicle.setLocation(request.getLocation());
+        vehicle.setStatus(AvailabilityStatus.AVAILABLE);
         return vehicle;
     }
 
@@ -34,6 +36,8 @@ public class VehicleMapper {
         response.setKm(vehicle.getKm());
         response.setFuel(vehicle.getFuel());
         response.setLocation(vehicle.getLocation());
+
+        if (vehicle.getStatus() != null) {response.setStatus(vehicle.getStatus());}
         return response;
     }
 
