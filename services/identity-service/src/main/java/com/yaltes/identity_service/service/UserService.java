@@ -25,6 +25,11 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    public UserResponse getUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı!"));
+        return userMapper.toResponse(user);
+    }
+
     public UserResponse createUser(CreateUserRequest request, Role role) {
         if (!role.equals(Role.ADMIN)) {
             throw new UnauthorizedUserException("Bu işlemi yapacak yetkiniz yok!");

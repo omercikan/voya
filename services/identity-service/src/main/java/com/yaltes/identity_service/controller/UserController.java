@@ -25,6 +25,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(user));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@RequestHeader(value = "X-User-Id") Long id) {
+        UserResponse user = userService.getUser(id);
+        return ResponseEntity.ok().body(ApiResponse.success(user));
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
