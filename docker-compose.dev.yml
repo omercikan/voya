@@ -12,6 +12,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       IDENTITY_URL: ${IDENTITY_URL}
       VEHICLE_URL: ${VEHICLE_URL}
+      CLIENT_URL: ${CLIENT_URL}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
     command: mvn spring-boot:run
     volumes:
