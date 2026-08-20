@@ -1,5 +1,7 @@
 package com.yaltes.vehicle_service.dto;
 
+import com.yaltes.vehicle_service.enums.AvailabilityStatus;
+
 public class VehicleResponse{
 
     private Integer id;
@@ -11,6 +13,7 @@ public class VehicleResponse{
     private Integer km;
     private String fuel;
     private String location;
+    private AvailabilityStatus status;
 
     // Getter-Setter
 
@@ -41,4 +44,6 @@ public class VehicleResponse{
     public String getBrand() {return brand;}
     public void setBrand(String brand) {this.brand = brand;}
 
+    public AvailabilityStatus getStatus() {return status;}
+    public void setStatus(AvailabilityStatus status) {this.status = status;}
 }

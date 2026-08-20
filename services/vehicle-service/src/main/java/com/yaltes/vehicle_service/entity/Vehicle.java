@@ -1,5 +1,6 @@
 package com.yaltes.vehicle_service.entity;
 
+import com.yaltes.vehicle_service.enums.AvailabilityStatus;
 import jakarta.persistence.*;
 
 @Entity
@@ -25,6 +26,8 @@ public class Vehicle {
     private String fuel;
     @Column(nullable = false,name = "location")
     private String location;
+    @Enumerated(EnumType.STRING)
+    private AvailabilityStatus status = AvailabilityStatus.AVAILABLE;
 
 
     // Constructors
@@ -69,4 +72,6 @@ public class Vehicle {
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
 
+    public AvailabilityStatus getStatus() { return status; }
+    public void setStatus(AvailabilityStatus status) { this.status = status; }
 }
