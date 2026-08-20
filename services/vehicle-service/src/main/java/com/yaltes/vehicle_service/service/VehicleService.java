@@ -5,9 +5,11 @@ import com.yaltes.vehicle_service.component.VehicleValidator;
 import com.yaltes.vehicle_service.dto.VehicleRequest;
 import com.yaltes.vehicle_service.dto.VehicleResponse;
 import com.yaltes.vehicle_service.entity.Vehicle;
-import com.yaltes.vehicle_service.exception.RoleException;
+import com.yaltes.vehicle_service.enums.AvailabilityStatus;
+import com.yaltes.vehicle_service.exception.ResourceNotFoundException;
 import com.yaltes.vehicle_service.exception.ValidationException;
 import com.yaltes.vehicle_service.repository.VehicleRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,11 +30,12 @@ public class VehicleService {
     }
 
     // Create
-    public VehicleResponse createVehicle(VehicleRequest request,String userRole) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public VehicleResponse createVehicle(VehicleRequest request) {
 
-        if(!userRole.equals("ADMIN")) {
+        /*if(!userRole.equals("ADMIN")) {
             throw new RoleException("Geçersiz rol.");
-        }
+        }*/
 
         validator.normalizeAndValidate(request);
 
@@ -52,12 +55,14 @@ public class VehicleService {
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
-
-    public Optional<VehicleResponse> getVehicle(Long id) {
-        return repository.findById(id).map(mapper::toResponse);
+    public VehicleResponse getVehicleById(Long id) {
+        return repository.findById(id)
+                .map(mapper::toResponse)
+                .orElseThrow(() -> new ValidationException(List.of("Vehicle not found with id: " + id)));
     }
 
     // Patch
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<VehicleResponse> updateVehicle(Long id, VehicleRequest patchData) {
         return repository.findById(id).map(existing -> {
             validator.normalizeAndValidate(patchData);
@@ -68,17 +73,60 @@ public class VehicleService {
                 }
             }
 
+            validateKmNotDecreasing(existing, patchData);
+
             mapper.updateEntityFromPatch(patchData, existing);
             return mapper.toResponse(repository.save(existing));
         });
     }
 
+    // Patch (Status)
+    @PreAuthorize("hasRole('ADMIN')")
+    public VehicleResponse updateVehicleStatus(Long id, AvailabilityStatus newStatus) {
+        Vehicle vehicle = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
+
+        vehicle.setStatus(newStatus);
+        Vehicle savedVehicle = repository.save(vehicle);
+
+        return mapper.toResponse(savedVehicle);
+    }
+
+    // Patch (User)
+    public Optional<VehicleResponse> updateKmAndLocation(Long id, VehicleRequest patchData) {
+        return repository.findById(id).map(existing -> {
+
+            validateKmNotDecreasing(existing, patchData);
+
+            if (patchData.getKm() != null) {
+                existing.setKm(patchData.getKm());
+            }
+
+            if (patchData.getLocation() != null) {
+                existing.setLocation(patchData.getLocation());
+            }
+
+            return mapper.toResponse(repository.save(existing));
+        });
+    }
+
     // Delete
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean deleteVehicle(Long id) {
         if (!repository.existsById(id)) {
-            return false;
+            throw new ResourceNotFoundException("Vehicle not found with id: " + id);
         }
         repository.deleteById(id);
         return true;
+    }
+
+    // Kilometer can't be decreased (updateVehicle and updateKmAndLocation)
+    private void validateKmNotDecreasing(Vehicle existing, VehicleRequest patchData) {
+        if (patchData.getKm() != null && patchData.getKm() < existing.getKm()) {
+            throw new ValidationException(List.of(
+                    "Kilometre azaltılamaz. Mevcut: " + existing.getKm() +
+                            ", gönderilen: " + patchData.getKm()
+            ));
+        }
     }
 }
