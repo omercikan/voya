@@ -4,6 +4,7 @@ import com.yaltes.vehicle_service.dto.VehicleRequest;
 import com.yaltes.vehicle_service.exception.ValidationException;
 import org.springframework.stereotype.Component;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +57,10 @@ public class VehicleValidator {
 
     // Year exception catcher
     private void validateYear(Integer year, List<String> errors) {
-        if (year != null && (year < 1900 || year > 2027)) {
+        int currentYear = Year.now().getValue(); // 2026
+        int minAllowedYear = currentYear - 60;   // 1966
+
+        if (year != null && (year < minAllowedYear || (year+1)> currentYear)) {
             errors.add("Geçersiz araç yılı: " + year);
         }
     }
