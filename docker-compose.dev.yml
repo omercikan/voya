@@ -6,6 +6,8 @@ services:
     image: maven:3.9-eclipse-temurin-26
     container_name: api-gateway-dev
     working_dir: /app
+    mem_limit: 2g                 
+    mem_reservation: 1g  
     ports:
       - "8080:8080"
     environment:
