@@ -7,10 +7,24 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/login" && accessToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (pathname === "/" && !accessToken) {
+  const protectedRoutes = [
+    "/",
+    "/dashboard",
+    "/appointments",
+    "/appointments/new",
+    "/vehicles",
+    "/employees",
+    "/profile",
+  ];
+
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (protectedRoutes.includes(pathname) && !accessToken) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -18,5 +32,13 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login"],
+  matcher: [
+    "/",
+    "/login",
+    "/dashboard/:path*",
+    "/vehicles/:path*",
+    "/appointments/:path*",
+    "/employees/:path*",
+    "/profile/:path*",
+  ],
 };
