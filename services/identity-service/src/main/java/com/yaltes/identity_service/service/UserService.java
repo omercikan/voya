@@ -13,6 +13,8 @@ import com.yaltes.identity_service.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -28,6 +30,16 @@ public class UserService {
     public UserResponse getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı!"));
         return userMapper.toResponse(user);
+    }
+
+    public List<UserResponse> getUsers(Role callerRole) {
+        if (callerRole != Role.ADMIN) {
+            throw new UnauthorizedUserException(
+                    "Bu işlemi yapabilecek yetkiye sahip değilsiniz!"
+            );
+        }
+
+        return userRepository.findAll().stream().map(userMapper::toResponse).toList();
     }
 
     public UserResponse createUser(CreateUserRequest request, Role role) {
