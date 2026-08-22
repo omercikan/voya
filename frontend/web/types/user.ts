@@ -3,6 +3,11 @@ export enum UserRole {
   EMPLOYEE = "EMPLOYEE",
 }
 
+export enum AccountStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
 export interface User {
   id: number;
   fullName: string;
@@ -10,4 +15,5 @@ export interface User {
   phoneNumber: string;
   role: UserRole;
   department: string;
+  status: AccountStatus;
 }
