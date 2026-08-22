@@ -9,15 +9,17 @@ export interface CustomButtonProps {
   text?: string;
   circularColor?: string;
   handleClick?: React.MouseEventHandler<HTMLButtonElement>;
+  children?: React.ReactNode;
 }
 
 const CustomButton = ({
   text,
-  type,
+  type = "button",
   isSubmitting = false,
   className = "",
   circularColor,
   handleClick,
+  children,
 }: CustomButtonProps) => {
   return (
     <button
@@ -37,7 +39,7 @@ const CustomButton = ({
           />
         </Box>
       ) : (
-        text
+        (text ?? children)
       )}
     </button>
   );
