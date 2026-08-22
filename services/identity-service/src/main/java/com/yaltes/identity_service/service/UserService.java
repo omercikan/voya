@@ -40,7 +40,10 @@ public class UserService {
             );
         }
 
-        return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+        return userRepository.findAllByRoleOrderByIdAsc(Role.EMPLOYEE)
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
     }
 
     public UserResponse createUser(CreateUserRequest request, Role role) {
