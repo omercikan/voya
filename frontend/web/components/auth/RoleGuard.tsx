@@ -1,3 +1,5 @@
+"use client";
+
 import useAuth from "@/hooks/useAuth";
 import { UserRole } from "@/types/user";
 import { redirect } from "next/navigation";
