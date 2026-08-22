@@ -18,6 +18,18 @@ const userApi = baseApi.injectEndpoints({
       providesTags: ["User"],
     }),
 
+    createUser: builder.mutation<
+      { data: User; success: boolean },
+      Omit<User, "status" | "id">
+    >({
+      query: (body) => ({
+        method: "POST",
+        url: "/api/users",
+        body: body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
     updateStatus: builder.mutation<
       void,
       { userId: number; status: AccountStatus }
@@ -34,5 +46,9 @@ const userApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetUserQuery, useGetUsersQuery, useUpdateStatusMutation } =
-  userApi;
+export const {
+  useGetUserQuery,
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateStatusMutation,
+} = userApi;
