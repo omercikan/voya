@@ -5,6 +5,7 @@ import com.yaltes.identity_service.dto.UpdateUserRequest;
 import com.yaltes.identity_service.dto.UserResponse;
 import com.yaltes.identity_service.entity.User;
 import com.yaltes.identity_service.enums.Role;
+import com.yaltes.identity_service.enums.Status;
 import com.yaltes.identity_service.exception.EmailAlreadyExistsException;
 import com.yaltes.identity_service.exception.UnauthorizedUserException;
 import com.yaltes.identity_service.exception.UserNotFoundException;
@@ -106,5 +107,16 @@ public class UserService {
         User user = userRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
 
         userRepository.delete(user);
+    }
+
+    public void updateStatus(Long id, Role callerRole, Status status) {
+        if (!callerRole.equals(Role.ADMIN)) {
+            throw new UnauthorizedUserException("Bu işlemi yapabilecek yetkiye sahip değilsiniz!");
+        }
+
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
+        user.setStatus(status);
+
+        userRepository.save(user);
     }
 }

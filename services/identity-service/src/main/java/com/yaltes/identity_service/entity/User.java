@@ -1,8 +1,10 @@
 package com.yaltes.identity_service.entity;
 
 import com.yaltes.identity_service.enums.Role;
+import com.yaltes.identity_service.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 @Entity
@@ -35,6 +37,12 @@ public class User {
 
     @Setter
     private String department;
+
+    @Getter
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.ACTIVE;
 
     public User() {
     }
