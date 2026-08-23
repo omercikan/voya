@@ -27,7 +27,7 @@ const LoginForm = () => {
       const loginResponse = await login(values).unwrap();
 
       if (loginResponse.success) {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     } catch (error) {
       toast.error(getErrorMessage(error));
