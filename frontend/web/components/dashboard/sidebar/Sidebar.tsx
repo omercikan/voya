@@ -6,10 +6,11 @@ import { PiCarProfile } from "react-icons/pi";
 import { FiUsers, FiUser } from "react-icons/fi";
 import Links from "./Links";
 import { UserRole } from "@/types/user";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 const Sidebar = () => {
   return (
-    <aside className="flex-col bg-sidebar sticky top-0 hidden h-screen w-64 shrink-0 md:block">
+    <aside className="bg-sidebar sticky top-0 hidden h-screen w-64 shrink-0 md:block">
       <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-4">
         <div className="flex size-9 items-center justify-center rounded-md bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground">
           YT
@@ -72,6 +73,10 @@ const Sidebar = () => {
           ]}
         />
       </nav>
+
+      <div className="grow h-[calc(100%-414.09px)]"></div>
+
+      <LogoutButton />
     </aside>
   );
 };
