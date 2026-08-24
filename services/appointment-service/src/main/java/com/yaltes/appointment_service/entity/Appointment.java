@@ -39,11 +39,11 @@ public class Appointment {
 
     @NotNull(message = "vehicleId zorunludur")
     @Column(name = "vehicle_id")
-    private UUID vehicleId;
+    private Long vehicleId;
 
     @NotNull(message = "customerId zorunludur")
     @Column(name = "customer_id")
-    private UUID customerId;
+    private Long customerId;
 
     @NotBlank(message = "purpose zorunludur")
     @Size(max = 500, message = "purpose en fazla 500 karakter olabilir")
@@ -102,19 +102,19 @@ public class Appointment {
         this.hourEnd = hourEnd;
     }
 
-    public UUID getVehicleId() {
+    public Long getVehicleId() {
         return vehicleId;
     }
 
-    public void setVehicleId(UUID vehicleId) {
+    public void setVehicleId(Long vehicleId) {
         this.vehicleId = vehicleId;
     }
 
-    public UUID getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(UUID customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
@@ -130,7 +130,7 @@ public class Appointment {
         return note;
     }
 
-    public void setNote(String purpose) {
+    public void setNote(String note) {
         this.note = note;
     }
 }

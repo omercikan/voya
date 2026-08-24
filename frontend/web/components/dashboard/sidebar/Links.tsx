@@ -3,6 +3,8 @@ import { setActiveLink } from "@/store/slices/linkSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import { UserRole } from "@/types/user";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { IconType } from "react-icons";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -19,6 +21,11 @@ const Links = ({ links }: LinksProps) => {
   const dispacth = useDispatch<AppDispatch>();
   const { activeLink } = useSelector((state: RootState) => state.linkSlice);
   const { user } = useAuth();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    dispacth(setActiveLink(pathname));
+  }, [dispacth, pathname]);
 
   return (
     <div>

@@ -27,7 +27,7 @@ const LoginForm = () => {
       const loginResponse = await login(values).unwrap();
 
       if (loginResponse.success) {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     } catch (error) {
       toast.error(getErrorMessage(error));
@@ -57,6 +57,7 @@ const LoginForm = () => {
           />
 
           <CustomInput
+            type="password"
             id="password"
             label="Şifre"
             placeholder="••••••••"
@@ -64,7 +65,11 @@ const LoginForm = () => {
             {...register("password", { required: "şifre zorunlu" })}
           />
 
-          <CustomButton text="Giriş Yap" isSubmitting={isLoading} />
+          <CustomButton
+            type="submit"
+            text="Giriş Yap"
+            isSubmitting={isLoading}
+          />
         </form>
       </div>
     </div>

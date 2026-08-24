@@ -5,6 +5,7 @@ import com.yaltes.identity_service.dto.UpdateUserRequest;
 import com.yaltes.identity_service.dto.UserResponse;
 import com.yaltes.identity_service.entity.User;
 import com.yaltes.identity_service.enums.Role;
+import com.yaltes.identity_service.enums.Status;
 import com.yaltes.identity_service.exception.EmailAlreadyExistsException;
 import com.yaltes.identity_service.exception.UnauthorizedUserException;
 import com.yaltes.identity_service.exception.UserNotFoundException;
@@ -12,6 +13,8 @@ import com.yaltes.identity_service.mapper.UserMapper;
 import com.yaltes.identity_service.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -28,6 +31,19 @@ public class UserService {
     public UserResponse getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı!"));
         return userMapper.toResponse(user);
+    }
+
+    public List<UserResponse> getUsers(Role callerRole) {
+        if (callerRole != Role.ADMIN) {
+            throw new UnauthorizedUserException(
+                    "Bu işlemi yapabilecek yetkiye sahip değilsiniz!"
+            );
+        }
+
+        return userRepository.findAllByRoleOrderByIdAsc(Role.EMPLOYEE)
+                .stream()
+                .map(userMapper::toResponse)
+                .toList();
     }
 
     public UserResponse createUser(CreateUserRequest request, Role role) {
@@ -62,6 +78,14 @@ public class UserService {
 
         User user = userRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
 
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getDepartment() != null && !request.getDepartment().isBlank()) {
+            user.setDepartment(request.getDepartment());
+        }
+
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyExistsException("Bu email adresi zaten kullanılıyor.");
@@ -70,8 +94,12 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
 
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            if (isAdmin) {
+            if (isAdmin && !isSelf) {
                 throw new UnauthorizedUserException("Şifre değiştirme yetkiniz yok.");
             }
 
@@ -94,5 +122,16 @@ public class UserService {
         User user = userRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
 
         userRepository.delete(user);
+    }
+
+    public void updateStatus(Long id, Role callerRole, Status status) {
+        if (!callerRole.equals(Role.ADMIN)) {
+            throw new UnauthorizedUserException("Bu işlemi yapabilecek yetkiye sahip değilsiniz!");
+        }
+
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
+        user.setStatus(status);
+
+        userRepository.save(user);
     }
 }
