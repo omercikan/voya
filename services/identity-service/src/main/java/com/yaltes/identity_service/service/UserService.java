@@ -78,6 +78,14 @@ public class UserService {
 
         User user = userRepository.findById(targetId).orElseThrow(() -> new UserNotFoundException("Kullanıcı bulunamadı."));
 
+        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getDepartment() != null && !request.getDepartment().isBlank()) {
+            user.setDepartment(request.getDepartment());
+        }
+
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyExistsException("Bu email adresi zaten kullanılıyor.");
@@ -86,8 +94,12 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
 
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isBlank()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            if (isAdmin) {
+            if (isAdmin && !isSelf) {
                 throw new UnauthorizedUserException("Şifre değiştirme yetkiniz yok.");
             }
 
