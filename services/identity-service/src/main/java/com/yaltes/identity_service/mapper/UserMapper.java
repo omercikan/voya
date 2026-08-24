@@ -30,6 +30,7 @@ public class UserMapper {
         response.setPhoneNumber(user.getPhoneNumber());
         response.setRole(user.getRole());
         response.setDepartment(user.getDepartment());
+        response.setStatus(user.getStatus());
 
         return response;
     }

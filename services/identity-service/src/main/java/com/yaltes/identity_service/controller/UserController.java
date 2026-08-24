@@ -1,14 +1,13 @@
 package com.yaltes.identity_service.controller;
 
-import com.yaltes.identity_service.dto.ApiResponse;
-import com.yaltes.identity_service.dto.CreateUserRequest;
-import com.yaltes.identity_service.dto.UpdateUserRequest;
-import com.yaltes.identity_service.dto.UserResponse;
+import com.yaltes.identity_service.dto.*;
 import com.yaltes.identity_service.enums.Role;
 import com.yaltes.identity_service.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -31,6 +30,18 @@ public class UserController {
         return ResponseEntity.ok().body(ApiResponse.success(user));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+        UserResponse user = userService.getUser(id);
+        return ResponseEntity.ok().body(ApiResponse.success(user));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers(@RequestHeader(value = "X-User-Role") Role callerRole) {
+        List<UserResponse> user = userService.getUsers(callerRole);
+        return ResponseEntity.ok().body(ApiResponse.success(user));
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
@@ -48,6 +59,15 @@ public class UserController {
             @RequestHeader(value = "X-User-Id") Long callerId
     ) {
         userService.deleteUser(id, userRole, callerId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Role") Role callerRole,
+            @RequestBody UpdateStatusRequest request) {
+        userService.updateStatus(id, callerRole, request.status());
         return ResponseEntity.noContent().build();
     }
 }

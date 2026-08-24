@@ -2,6 +2,8 @@ package com.yaltes.identity_service.service;
 
 import com.yaltes.identity_service.dto.LoginUserRequest;
 import com.yaltes.identity_service.entity.User;
+import com.yaltes.identity_service.enums.Status;
+import com.yaltes.identity_service.exception.UnauthorizedUserException;
 import com.yaltes.identity_service.exception.UserNotFoundException;
 import com.yaltes.identity_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,10 @@ public class AuthService {
         boolean isMatchesPassword = passwordEncoder.matches(inputPassword, savedPassword);
 
         if (!isMatchesPassword) throw new UserNotFoundException("Kullanıcı adı veya şifre hatalı!");
+
+        if (user.get().getStatus().equals(Status.INACTIVE)) {
+            throw new UnauthorizedUserException("Hesabınız aktif değil.");
+        }
 
         // 3.) Generate a JWT token.
         return jwtService.generateToken(

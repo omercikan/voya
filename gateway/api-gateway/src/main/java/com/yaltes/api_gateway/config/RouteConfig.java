@@ -33,6 +33,15 @@ public class RouteConfig {
     }
 
     @Bean
+    public RouterFunction<ServerResponse> authLogoutRoute() {
+        return route("auth-logout")
+                .route(path("/api/auth/logout"), http())
+                .before(uri(identityServiceUrl))
+                .filter(jwtAuthenticationFilter.filter())
+                .build();
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> identityServiceRoute() {
         return route("identity-service")
                 .route(path("/api/users/**"), http())
