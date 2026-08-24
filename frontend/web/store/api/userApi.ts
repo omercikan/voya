@@ -8,6 +8,7 @@ const userApi = baseApi.injectEndpoints({
         method: "GET",
         url: "/api/users/me",
       }),
+      providesTags: ["User"],
     }),
 
     getUsers: builder.query<{ data: User[]; success: boolean }, void>({
@@ -25,6 +26,18 @@ const userApi = baseApi.injectEndpoints({
       query: (body) => ({
         method: "POST",
         url: "/api/users",
+        body: body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    updateUser: builder.mutation<
+      { data: User; success: boolean },
+      { userId: number; body: Partial<User> }
+    >({
+      query: ({ userId, body }) => ({
+        method: "PATCH",
+        url: `/api/users/${userId}`,
         body: body,
       }),
       invalidatesTags: ["User"],
@@ -50,5 +63,6 @@ export const {
   useGetUserQuery,
   useGetUsersQuery,
   useCreateUserMutation,
+  useUpdateUserMutation,
   useUpdateStatusMutation,
 } = userApi;
