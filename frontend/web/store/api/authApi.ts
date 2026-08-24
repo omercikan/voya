@@ -9,6 +9,7 @@ const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["User"],
     }),
 
     logout: builder.mutation<void, void>({
@@ -16,6 +17,7 @@ const authApi = baseApi.injectEndpoints({
         url: "/api/auth/logout",
         method: "POST",
       }),
+      invalidatesTags: ["User"],
     }),
   }),
 });
