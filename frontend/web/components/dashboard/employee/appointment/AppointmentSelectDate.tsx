@@ -54,6 +54,7 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedStartDate}
                 onChange={(newValue) => handleSelectDate(newValue, "start")}
+                disablePast
               />
             </div>
           </DateProvider>
@@ -66,6 +67,7 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedEndDate}
                 onChange={(newValue) => handleSelectDate(newValue, "end")}
+                disablePast
               />
             </div>
           </DateProvider>
