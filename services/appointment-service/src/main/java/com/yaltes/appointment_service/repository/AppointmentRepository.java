@@ -20,9 +20,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             AND a.dateEnd >= :dateStart
             """)
     List<Appointment> findOverlapping(
-            @Param("vehicleId") UUID vehicleId,
+            @Param("vehicleId") Long vehicleId,
             @Param("dateStart") LocalDate dateStart,
             @Param("dateEnd") LocalDate dateEnd
     );
-    List<Appointment> findByVehicleIdAndStatusNot(UUID vehicleId, AppointmentStatus status);
+
+    List<Appointment> findByVehicleIdAndStatusNot(Long vehicleId, AppointmentStatus status);
 }
