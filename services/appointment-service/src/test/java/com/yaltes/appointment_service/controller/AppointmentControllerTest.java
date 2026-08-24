@@ -34,20 +34,18 @@ class AppointmentControllerTest {
     @Test
     void appointment_must_successfully_created() {
         Appointment appointment = new Appointment();
-        appointment.setVehicleId(UUID.randomUUID());
-        appointment.setCustomerId(UUID.randomUUID());
+        appointment.setVehicleId(2L);
+        appointment.setCustomerId(3L);
         appointment.setDateStart(LocalDate.of(2026, 9, 1));
         appointment.setDateEnd(LocalDate.of(2026, 9, 3));
         appointment.setHourStart(LocalTime.of(9, 0));
         appointment.setHourEnd(LocalTime.of(18, 0));
-        appointment.setPurpose("iş seyahati");
+        appointment.setPurpose("is seyahati");
 
         when(repository.findOverlapping(any(), any(), any()))
                 .thenReturn(Collections.emptyList());
         when(repository.save(appointment)).thenReturn(appointment);
-
         ResponseEntity<?> response = controller.create(appointment);
-
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(AppointmentStatus.PENDING, appointment.getStatus());
     }
@@ -55,14 +53,13 @@ class AppointmentControllerTest {
     @Test
     void conflict_if_there_409() {
         Appointment appointment = new Appointment();
-        appointment.setVehicleId(UUID.randomUUID());
-        appointment.setCustomerId(UUID.randomUUID());
+        appointment.setVehicleId(2L);
+        appointment.setCustomerId(3L);
         appointment.setDateStart(LocalDate.of(2026, 9, 1));
         appointment.setDateEnd(LocalDate.of(2026, 9, 3));
         appointment.setHourStart(LocalTime.of(9, 0));
         appointment.setHourEnd(LocalTime.of(18, 0));
-        appointment.setPurpose("iş seyahati");
-
+        appointment.setPurpose("is seyahati");
         Appointment mevcutRandevu = new Appointment();
         mevcutRandevu.setId(UUID.randomUUID());
 
@@ -84,7 +81,7 @@ class AppointmentControllerTest {
     }
 
     @Test
-    void if_appointment_not_found_400() {
+    void if_appointment_not_found_404() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
         ResponseEntity<Appointment> response = controller.getById(id);
