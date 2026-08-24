@@ -7,6 +7,7 @@ import com.yaltes.appointment_service.repository.AppointmentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class AppointmentController {
 
     private final AppointmentRepository repository;
+
     public AppointmentController(AppointmentRepository repository) {
         this.repository = repository;
     }
@@ -41,7 +43,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/vehicle/{vehicleId}/busy")
-    public List<Appointment> getBusyDatesForVehicle(@PathVariable UUID vehicleId) {
+    public List<Appointment> getBusyDatesForVehicle(@PathVariable Long vehicleId) {
         return repository.findByVehicleIdAndStatusNot(vehicleId, AppointmentStatus.CANCELLED);
     }
 
@@ -59,7 +61,7 @@ public class AppointmentController {
     }
 
 
-   @PatchMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status) {
 
         return repository.findById(id)
