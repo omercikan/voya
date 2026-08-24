@@ -3,7 +3,7 @@ package com.yaltes.appointment_service.dto;
 import java.util.UUID;
 
 public class Vehicle {
-    private UUID id;
+    private Long id;
     private String plate;
     private String brand;
     private String model;
@@ -13,11 +13,11 @@ public class Vehicle {
     private String fuel;
     private String location;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
