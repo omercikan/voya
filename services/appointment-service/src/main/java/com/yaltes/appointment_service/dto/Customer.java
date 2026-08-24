@@ -3,16 +3,16 @@ package com.yaltes.appointment_service.dto;
 import java.util.UUID;
 
 public class Customer {
-    private UUID id;
+    private Long id;
     private String full_name;
     private String phone_number;
     private String email;
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
