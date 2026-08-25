@@ -23,7 +23,7 @@ public class VehicleController {
 
     // POST /api/vehicles
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<VehicleResponse> createVehicle(@RequestBody VehicleRequest request) {
         VehicleResponse response = vehicleService.createVehicle(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED); // HTTP 201
@@ -43,7 +43,7 @@ public class VehicleController {
 
     // PATCH /api/vehicles/{id}
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<VehicleResponse> updateVehicle(@PathVariable Long id, @RequestBody VehicleRequest request) {
         return vehicleService.updateVehicle(id, request)
                 .map(ResponseEntity::ok)
@@ -52,7 +52,7 @@ public class VehicleController {
 
     // PATCH /api/vehicles/{id}/status
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<VehicleResponse> updateVehicleStatus(
             @PathVariable Long id,
             @RequestParam AvailabilityStatus status) {
@@ -71,12 +71,9 @@ public class VehicleController {
 
     // DELETE /api/vehicles/{id}
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
-        boolean deleted = vehicleService.deleteVehicle(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build(); // HTTP 204
-        }
-        return ResponseEntity.notFound().build(); // HTTP 404
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build(); // HTTP 204
     }
 }

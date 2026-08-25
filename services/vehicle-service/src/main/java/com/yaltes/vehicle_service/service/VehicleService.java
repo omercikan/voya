@@ -30,12 +30,8 @@ public class VehicleService {
     }
 
     // Create
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public VehicleResponse createVehicle(VehicleRequest request) {
-
-        /*if(!userRole.equals("ADMIN")) {
-            throw new RoleException("Geçersiz rol.");
-        }*/
 
         validator.normalizeAndValidate(request);
 
@@ -58,11 +54,11 @@ public class VehicleService {
     public VehicleResponse getVehicleById(Long id) {
         return repository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new ValidationException(List.of("Vehicle not found with id: " + id)));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
     }
 
     // Patch
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Optional<VehicleResponse> updateVehicle(Long id, VehicleRequest patchData) {
         return repository.findById(id).map(existing -> {
             validator.normalizeAndValidate(patchData);
@@ -81,7 +77,7 @@ public class VehicleService {
     }
 
     // Patch (Status)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public VehicleResponse updateVehicleStatus(Long id, AvailabilityStatus newStatus) {
         Vehicle vehicle = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
@@ -111,13 +107,12 @@ public class VehicleService {
     }
 
     // Delete
-    @PreAuthorize("hasRole('ADMIN')")
-    public boolean deleteVehicle(Long id) {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteVehicle(Long id) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Vehicle not found with id: " + id);
         }
         repository.deleteById(id);
-        return true;
     }
 
     // Kilometer can't be decreased (updateVehicle and updateKmAndLocation)
