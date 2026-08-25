@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
-    @Query(""" 
+    @Query("""
             SELECT a FROM Appointment a
             WHERE a.vehicleId = :vehicleId
             AND a.status <> com.yaltes.appointment_service.entity.AppointmentStatus.CANCELLED
@@ -26,4 +26,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     );
 
     List<Appointment> findByVehicleIdAndStatusNot(Long vehicleId, AppointmentStatus status);
+
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.status <> com.yaltes.appointment_service.entity.AppointmentStatus.CANCELLED
+            AND a.dateStart <= :toDate
+            AND a.dateEnd >= :fromDate
+            """)
+    List<Appointment> findActiveInRange(
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
 }
