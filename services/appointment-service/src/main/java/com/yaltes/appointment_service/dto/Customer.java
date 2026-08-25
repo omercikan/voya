@@ -1,11 +1,9 @@
 package com.yaltes.appointment_service.dto;
 
-import java.util.UUID;
-
 public class Customer {
     private Long id;
-    private String full_name;
-    private String phone_number;
+    private String fullName;
+    private String phoneNumber;
     private String email;
 
     public Long getId() {
@@ -16,27 +14,27 @@ public class Customer {
         this.id = id;
     }
 
-    public String getFull_name() {
-        return full_name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setFull_name(String full_name) {
-        this.full_name = full_name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public String getPhone_number() {
-        return phone_number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getMail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setMail(String mail) {
-        this.email = mail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
