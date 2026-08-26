@@ -1,13 +1,19 @@
 package com.yaltes.appointment_service.controller;
 
+import com.yaltes.appointment_service.client.CustomerClient;
+import com.yaltes.appointment_service.client.VehicleClient;
 import com.yaltes.appointment_service.dto.ApiResponse;
+import com.yaltes.appointment_service.dto.AppointmentResponse;
+import com.yaltes.appointment_service.dto.AvailabilityResponse;
 import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.entity.AppointmentStatus;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
+import com.yaltes.appointment_service.service.AvailabilityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,11 +23,19 @@ import java.util.UUID;
 public class AppointmentController {
 
     private final AppointmentRepository repository;
+    private final VehicleClient vehicleClient;
+    private final CustomerClient customerClient;
+    private final AvailabilityService availabilityService;
 
-    public AppointmentController(AppointmentRepository repository) {
+    public AppointmentController(AppointmentRepository repository,
+                                 VehicleClient vehicleClient,
+                                 CustomerClient customerClient,
+                                 AvailabilityService availabilityService) {
         this.repository = repository;
+        this.vehicleClient = vehicleClient;
+        this.customerClient = customerClient;
+        this.availabilityService = availabilityService;
     }
-
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Appointment appointment) {
@@ -30,12 +44,11 @@ public class AppointmentController {
         }
 
         List<Appointment> overlapping = repository.findOverlapping(
-                appointment.getVehicleId(),
-                appointment.getDateStart(),
-                appointment.getDateEnd());
+                appointment.getVehicleId(), appointment.getDateStart(), appointment.getDateEnd());
 
         if (!overlapping.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse(true, "Bu arac, secilen tarih araliginda baska bir randevuya sahip"));
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse(true, "Bu arac, secilen tarih araliginda baska bir randevuya sahip"));
         }
 
         Appointment saved = repository.save(appointment);
@@ -47,31 +60,34 @@ public class AppointmentController {
         return repository.findByVehicleIdAndStatusNot(vehicleId, AppointmentStatus.CANCELLED);
     }
 
-    @GetMapping
-    public List<Appointment> getAll() {
-        return repository.findAll();
-    }
-
-
     @GetMapping("/{id}")
-    public ResponseEntity<Appointment> getById(@PathVariable UUID id) {
+    public ResponseEntity<AppointmentResponse> getById(@PathVariable UUID id) {
         return repository.findById(id)
-                .map(appointment -> ResponseEntity.ok(appointment))
-                .orElse(ResponseEntity.notFound().build());
+                .map(this::toResponse).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping
+    public List<AppointmentResponse> getAll() {
+        return repository.findAll().stream()
+                .map(this::toResponse).toList();
+    }
+
+    @GetMapping("/availability")
+    public AvailabilityResponse getAvailability(
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to
+    ) {
+        return availabilityService.getAvailability(from, to);
+    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status) {
-
         return repository.findById(id)
                 .map(appointment -> {
                     appointment.setStatus(status);
                     return ResponseEntity.ok(repository.save(appointment));
-                })
-                .orElse(ResponseEntity.notFound().build());
+                }).orElse(ResponseEntity.notFound().build());
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
@@ -80,5 +96,20 @@ public class AppointmentController {
         }
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private AppointmentResponse toResponse(Appointment appointment) {
+        AppointmentResponse response = new AppointmentResponse();
+        response.setId(appointment.getId());
+        response.setStatus(appointment.getStatus());
+        response.setDateStart(appointment.getDateStart());
+        response.setDateEnd(appointment.getDateEnd());
+        response.setHourStart(appointment.getHourStart());
+        response.setHourEnd(appointment.getHourEnd());
+        response.setPurpose(appointment.getPurpose());
+        response.setNote(appointment.getNote());
+        response.setVehicle(vehicleClient.getVehicleById(appointment.getVehicleId()));
+        response.setCustomer(customerClient.getCustomerById(appointment.getCustomerId()));
+        return response;
     }
 }

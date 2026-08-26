@@ -1,5 +1,6 @@
 package com.yaltes.appointment_service.controller;
 
+import com.yaltes.appointment_service.dto.AppointmentResponse;
 import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.entity.AppointmentStatus;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
@@ -75,7 +76,7 @@ class AppointmentControllerTest {
         appointment.setId(id);
 
         when(repository.findById(id)).thenReturn(Optional.of(appointment));
-        ResponseEntity<Appointment> response = controller.getById(id);
+        ResponseEntity<AppointmentResponse> response = controller.getById(id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(id, response.getBody().getId());
     }
@@ -84,7 +85,7 @@ class AppointmentControllerTest {
     void if_appointment_not_found_404() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
-        ResponseEntity<Appointment> response = controller.getById(id);
+        ResponseEntity<AppointmentResponse> response = controller.getById(id);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
