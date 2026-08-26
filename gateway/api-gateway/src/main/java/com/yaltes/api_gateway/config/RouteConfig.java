@@ -21,6 +21,9 @@ public class RouteConfig {
     @Value("${vehicle.service.url}")
     private String vehicleServiceUrl;
 
+    @Value("${appointment.service.url}")
+    private String appointmentServiceUrl;
+
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -55,6 +58,15 @@ public class RouteConfig {
         return route("vehicle-service")
                 .route(path("/api/vehicles/**"), http())
                 .before(uri(vehicleServiceUrl))
+                .filter(jwtAuthenticationFilter.filter())
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> appointmentServiceRoute() {
+        return route("appointment-service")
+                .route(path("/appointments/**"), http())
+                .before(uri(appointmentServiceUrl))
                 .filter(jwtAuthenticationFilter.filter())
                 .build();
     }
