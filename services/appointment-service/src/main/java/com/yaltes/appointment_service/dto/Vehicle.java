@@ -10,6 +10,7 @@ public class Vehicle {
     private Integer km;
     private String fuel;
     private String location;
+    private String status;
 
     public Long getId() {
         return id;
@@ -83,4 +84,11 @@ public class Vehicle {
         this.location = location;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

@@ -6,6 +6,7 @@ import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -88,5 +89,21 @@ public class AvailabilityService {
         LocalTime busyTo = date.isEqual(appointment.getDateEnd()) ? appointment.getHourEnd() : LocalTime.MAX;
 
         return busyFrom.isBefore(slotEnd) && busyTo.isAfter(slotStart);
+    }
+
+    public List<Vehicle> getBusyVehicles(LocalDate date, LocalTime hourStart, LocalTime hourEnd) {
+        List<Appointment> appointments = repository.findActiveInRange(date, date);
+
+        Set<Long> busyVehicleIds = new HashSet<>();
+        for (Appointment appointment : appointments) {
+            if (isVehicleBusy(appointment, date, hourStart, hourEnd)) {
+                busyVehicleIds.add(appointment.getVehicleId());
+            }
+        }
+
+        return busyVehicleIds.stream()
+                .map(vehicleClient::getVehicleById)
+                .filter(Objects::nonNull)
+                .toList();
     }
 }
