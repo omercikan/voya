@@ -47,7 +47,7 @@ const mockData = {
     {
       date: "2026-08-26",
       status: "full",
-      minFreeVehicles: 0,
+      minFreeVehicles: 2,
       hourly: [
         { time: "08:00-09:00", free: 0 },
         { time: "09:00-10:00", free: 0 },
@@ -166,11 +166,7 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedStartDate}
                 onChange={(newValue) => handleSelectDate(newValue, "start")}
-                shouldDisableDate={(date) =>
-                  mockData.days.find(
-                    (day) => day.date === date.format("YYYY-MM-DD"),
-                  )?.status === "full"
-                }
+                
                 disablePast
               />
             </div>
@@ -184,13 +180,13 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedEndDate}
                 onChange={(newValue) => handleSelectDate(newValue, "end")}
-                shouldDisableDate={(date) =>
-                  date.isBefore(dayjs(selectedStartDate).startOf("day")) ||
-                  mockData.days.find(
-                    (day) => day.date === date.format("YYYY-MM-DD"),
-                  )?.status === "full" ||
-                  selectedStartDate === null
-                }
+                // shouldDisableDate={(date) =>
+                //   date.isBefore(dayjs(selectedStartDate).startOf("day")) ||
+                //   mockData.days.find(
+                //     (day) => day.date === date.format("YYYY-MM-DD"),
+                //   )?.status === "full" ||
+                //   selectedStartDate === null
+                // }
                 disablePast
               />
             </div>
