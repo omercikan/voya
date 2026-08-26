@@ -13,6 +13,7 @@ export const appointmentApi = baseApi.injectEndpoints({
         method: "POST",
         body: appointmentData,
       }),
+      invalidatesTags: ["Appointment"],
     }),
 
     getAppointmentMe: builder.query<AppointmentResponse[], void>({
