@@ -54,6 +54,9 @@ public class Appointment {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "reject_note")
+    private String rejectNote;
+
     public UUID getId() {
         return id;
     }
@@ -132,5 +135,13 @@ public class Appointment {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getRejectNote() {
+        return rejectNote;
+    }
+
+    public void setRejectNote(String rejectNote) {
+        this.rejectNote = rejectNote;
     }
 }
