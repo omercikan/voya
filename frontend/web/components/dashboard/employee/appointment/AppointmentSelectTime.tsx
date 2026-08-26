@@ -52,7 +52,7 @@ const AppointmentSelectTime = () => {
           theadTrClassName={isSameDate ? "grid-cols-1" : "grid-cols-2"}
           theads={[
             `${appointment.dateStart.toUpperCase()} · BAŞLANGIÇ`,
-            isSameDate ? `${appointment.dateEnd.toUpperCase()} · BİTİŞ` : "",
+            isSameDate ? "" : `${appointment.dateEnd.toUpperCase()} · BİTİŞ`,
           ]}
         >
           {hourSlots.map((slot, index) => (
