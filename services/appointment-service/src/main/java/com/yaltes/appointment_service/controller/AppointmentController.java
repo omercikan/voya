@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -76,6 +77,15 @@ public class AppointmentController {
                 .map(this::toResponse).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/busy-vehicles")
+    public List<Vehicle> getBusyVehicles(
+            @RequestParam LocalDate date,
+            @RequestParam LocalTime hourStart,
+            @RequestParam LocalTime hourEnd
+    ) {
+        return availabilityService.getBusyVehicles(date, hourStart, hourEnd);
+    }
+
     @GetMapping
     public List<AppointmentResponse> getAll(@RequestParam(required = false) AppointmentStatus status) {
         List<Appointment> appointments = (status != null)
@@ -104,10 +114,13 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status) {
+    public ResponseEntity<Appointment> updateStatus(@PathVariable UUID id, @RequestParam AppointmentStatus status, @RequestParam(required = false) String rejectNote) {
         return repository.findById(id)
                 .map(appointment -> {
                     appointment.setStatus(status);
+                    if (status == AppointmentStatus.CANCELLED) {
+                        appointment.setRejectNote(rejectNote);
+                    }
                     return ResponseEntity.ok(repository.save(appointment));
                 }).orElse(ResponseEntity.notFound().build());
     }
@@ -131,6 +144,7 @@ public class AppointmentController {
         response.setHourEnd(appointment.getHourEnd());
         response.setPurpose(appointment.getPurpose());
         response.setNote(appointment.getNote());
+        response.setRejectNote(appointment.getRejectNote());
         response.setVehicle(vehicleClient.getVehicleById(appointment.getVehicleId()));
         response.setCustomer(customerClient.getCustomerById(appointment.getCustomerId()));
         return response;
