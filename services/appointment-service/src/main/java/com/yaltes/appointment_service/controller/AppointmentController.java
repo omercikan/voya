@@ -5,12 +5,15 @@ import com.yaltes.appointment_service.client.VehicleClient;
 import com.yaltes.appointment_service.dto.ApiResponse;
 import com.yaltes.appointment_service.dto.AppointmentResponse;
 import com.yaltes.appointment_service.dto.AvailabilityResponse;
+import com.yaltes.appointment_service.dto.Vehicle;
 import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.entity.AppointmentStatus;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
 import com.yaltes.appointment_service.service.AvailabilityService;
 import jakarta.validation.Valid;
+import org.springframework.data.repository.support.Repositories;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,9 +77,22 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<AppointmentResponse> getAll() {
-        return repository.findAll().stream()
-                .map(this::toResponse).toList();
+    public List<AppointmentResponse> getAll(@RequestParam(required = false) AppointmentStatus status) {
+        List<Appointment> appointments = (status != null)
+                ? repository.findByStatus(status)
+                : repository.findAll();
+
+        return appointments.stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // GET /appointments/me
+    @GetMapping("/me")
+    public List<AppointmentResponse> getMyAppointments(@RequestHeader("X-User-Id") Long userId) {
+        return repository.findByCustomerId(userId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @GetMapping("/availability")
