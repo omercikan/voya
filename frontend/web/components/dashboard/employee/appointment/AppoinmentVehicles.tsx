@@ -6,6 +6,7 @@ import { CgOptions } from "react-icons/cg";
 import { RiSpeedUpLine } from "react-icons/ri";
 import AppointmentActions from "./AppointmentActions";
 import { setAppointment, setVehicle } from "@/store/slices/appointmentSlice";
+import { IoLocationOutline } from "react-icons/io5";
 
 const AppoinmentVehicles = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -72,6 +73,10 @@ const AppoinmentVehicles = () => {
                 <span className="flex items-center gap-1.5">
                   <RiSpeedUpLine />
                   <span>{new Intl.NumberFormat().format(vehicle.km)} km/h</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <IoLocationOutline />
+                  <span>{vehicle.location}</span>
                 </span>
               </div>
             </button>
