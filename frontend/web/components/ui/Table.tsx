@@ -27,14 +27,17 @@ const Table = ({
             <tr
               className={`border-b grid px-6 border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted ${theadTrClassName}`}
             >
-              {theads.map((th) => (
-                <th
-                  key={th}
-                  className="h-10 text-left flex-1 flex items-center font-bold text-muted-foreground whitespace-nowrap"
-                >
-                  {th}
-                </th>
-              ))}
+              {theads.map(
+                (th) =>
+                  th && (
+                    <th
+                      key={th}
+                      className="h-10 text-left flex-1 flex items-center font-bold text-muted-foreground whitespace-nowrap"
+                    >
+                      {th}
+                    </th>
+                  ),
+              )}
             </tr>
           </thead>
 

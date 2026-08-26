@@ -14,27 +14,27 @@ const mockData = {
   range: { from: "2026-08-01", to: "2026-08-31" },
   totalVehicles: 5,
   days: [
-    {
-      date: "2026-08-01",
-      status: "available",
-      minFreeVehicles: 5,
-      hourly: [
-        { time: "08:00-09:00", free: 5 },
-        { time: "09:00-10:00", free: 5 },
-        { time: "10:00-11:00", free: 5 },
-        { time: "11:00-12:00", free: 5 },
-        { time: "13:00-14:00", free: 5 },
-        { time: "14:00-15:00", free: 5 },
-        { time: "15:00-16:00", free: 5 },
-        { time: "16:00-17:00", free: 5 },
-      ],
-    },
+    // {
+    //   date: "2026-08-01",
+    //   status: "available",
+    //   minFreeVehicles: 5,
+    //   hourly: [
+    //     { time: "08:00-09:00", free: 5 },
+    //     { time: "09:00-10:00", free: 5 },
+    //     { time: "10:00-11:00", free: 5 },
+    //     { time: "11:00-12:00", free: 5 },
+    //     { time: "13:00-14:00", free: 5 },
+    //     { time: "14:00-15:00", free: 5 },
+    //     { time: "15:00-16:00", free: 5 },
+    //     { time: "16:00-17:00", free: 5 },
+    //   ],
+    // },
     {
       date: "2026-08-25",
       status: "available",
       minFreeVehicles: 3,
       hourly: [
-        { time: "08:00-09:00", free: 4 },
+        { time: "08:00-09:00", free: 3 },
         { time: "09:00-10:00", free: 3 },
         { time: "10:00-11:00", free: 5 },
         { time: "11:00-12:00", free: 4 },
@@ -47,16 +47,16 @@ const mockData = {
     {
       date: "2026-08-26",
       status: "full",
-      minFreeVehicles: 2,
+      minFreeVehicles: 1,
       hourly: [
-        { time: "08:00-09:00", free: 0 },
-        { time: "09:00-10:00", free: 0 },
-        { time: "10:00-11:00", free: 0 },
-        { time: "11:00-12:00", free: 0 },
-        { time: "13:00-14:00", free: 0 },
-        { time: "14:00-15:00", free: 0 },
-        { time: "15:00-16:00", free: 0 },
-        { time: "16:00-17:00", free: 0 },
+        { time: "08:00-09:00", free: 1 },
+        { time: "09:00-10:00", free: 1 },
+        { time: "10:00-11:00", free: 1 },
+        { time: "11:00-12:00", free: 1 },
+        { time: "13:00-14:00", free: 1 },
+        { time: "14:00-15:00", free: 1 },
+        { time: "15:00-16:00", free: 1 },
+        { time: "16:00-17:00", free: 1 },
       ],
     },
     {
@@ -77,7 +77,7 @@ const mockData = {
     {
       date: "2026-08-28",
       status: "available",
-      minFreeVehicles: 5,
+      minFreeVehicles: 3,
       hourly: [
         { time: "08:00-09:00", free: 5 },
         { time: "09:00-10:00", free: 5 },
@@ -105,9 +105,24 @@ const mockData = {
       ],
     },
     {
+      date: "2026-08-30",
+      status: "available",
+      minFreeVehicles: 0,
+      hourly: [
+        { time: "08:00-09:00", free: 5 },
+        { time: "09:00-10:00", free: 5 },
+        { time: "10:00-11:00", free: 5 },
+        { time: "11:00-12:00", free: 5 },
+        { time: "13:00-14:00", free: 5 },
+        { time: "14:00-15:00", free: 5 },
+        { time: "15:00-16:00", free: 5 },
+        { time: "16:00-17:00", free: 5 },
+      ],
+    },
+    {
       date: "2026-08-31",
       status: "available",
-      minFreeVehicles: 5,
+      minFreeVehicles: 0,
       hourly: [
         { time: "08:00-09:00", free: 5 },
         { time: "09:00-10:00", free: 5 },
@@ -166,7 +181,6 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedStartDate}
                 onChange={(newValue) => handleSelectDate(newValue, "start")}
-                
                 disablePast
               />
             </div>
@@ -187,6 +201,7 @@ const AppointmentSelectDate = () => {
                 //   )?.status === "full" ||
                 //   selectedStartDate === null
                 // }
+
                 disablePast
               />
             </div>
