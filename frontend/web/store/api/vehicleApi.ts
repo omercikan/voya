@@ -30,6 +30,18 @@ export const vehicleApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Vehicle"],
     }),
+
+    updateVehicleKmAndLocation: builder.mutation<
+      Vehicle,
+      { vehicleId: number; km: number; location: string }
+    >({
+      query: ({ vehicleId, km, location }) => ({
+        url: `/api/vehicles/${vehicleId}/km-location`,
+        method: "PATCH",
+        body: { km, location },
+      }),
+      invalidatesTags: ["Vehicle"],
+    }),
   }),
 });
 
@@ -37,4 +49,5 @@ export const {
   useGetVehiclesQuery,
   useCreateVehicleMutation,
   useUpdateVehicleStatusMutation,
+  useUpdateVehicleKmAndLocationMutation,
 } = vehicleApi;
