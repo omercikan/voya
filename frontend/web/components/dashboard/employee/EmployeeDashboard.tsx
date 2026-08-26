@@ -66,7 +66,7 @@ const EmployeeDashboard = () => {
   return (
     <RoleGuard role={UserRole.EMPLOYEE}>
       <Header
-        title={`Hoşgeldin ${user?.fullName}`}
+        title={`Hoşgeldin, ${user?.fullName.split(" ").at(0)}`}
         description="İşte araç rezervasyonlarınızın güncel durumu."
       >
         <CustomButton
@@ -118,8 +118,16 @@ const EmployeeDashboard = () => {
 
       <Table
         title="Son Rezervasyonlarınız"
-        theadTrClassName="grid-cols-6 gap-12"
-        theads={["Araç", "Tarih", "Saat", "Gidelecek Yer", "Durum", "Eylemler"]}
+        theadTrClassName="grid-cols-7 gap-12"
+        theads={[
+          "Araç",
+          "Tarih",
+          "Saat",
+          "Gidelecek Yer",
+          "Durum",
+          "İptal Sebebi",
+          "Eylemler",
+        ]}
       >
         {appointments?.map((appointment) => (
           <AppointmentTableBody
