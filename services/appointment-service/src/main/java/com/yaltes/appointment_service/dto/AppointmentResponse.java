@@ -17,6 +17,8 @@ public class AppointmentResponse {
     private String note;
     private Vehicle vehicle;
     private Customer customer;
+    private String rejectNote;
+
 
     public UUID getId() {
         return id;
@@ -96,5 +98,13 @@ public class AppointmentResponse {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public String getRejectNote() {
+        return rejectNote;
+    }
+
+    public void setRejectNote(String rejectNote) {
+        this.rejectNote = rejectNote;
     }
 }
