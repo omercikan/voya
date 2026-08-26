@@ -37,4 +37,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate
     );
+
+    List<Appointment> findByCustomerId(Long customerId);
+
+    List<Appointment> findByStatus(AppointmentStatus status);
 }
