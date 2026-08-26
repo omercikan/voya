@@ -39,7 +39,7 @@ const InformationCardItem = ({
           <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             {title}
           </h2>
-          <span className="font-display mt-2 text-3xl font-bold leading-none">
+          <span className="font-display mt-2 text-3xl font-bold leading-none block">
             {value}
           </span>
 
