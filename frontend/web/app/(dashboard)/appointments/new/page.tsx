@@ -1,5 +1,6 @@
 "use client";
 
+import AppoinmentVehicles from "@/components/dashboard/employee/appointment/AppoinmentVehicles";
 import AppointmentSelectDate from "@/components/dashboard/employee/appointment/AppointmentSelectDate";
 import AppointmentSelectTime from "@/components/dashboard/employee/appointment/AppointmentSelectTime";
 import AppointmentStep from "@/components/dashboard/employee/appointment/AppointmentStep";
@@ -21,6 +22,8 @@ const NewAppointmentPage = () => {
           </Activity>
         }
         {step === 2 && <AppointmentSelectTime />}
+
+        {step === 3 && <AppoinmentVehicles />}
       </div>
     </>
   );
