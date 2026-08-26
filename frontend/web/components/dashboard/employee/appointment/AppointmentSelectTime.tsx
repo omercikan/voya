@@ -34,8 +34,6 @@ const AppointmentSelectTime = () => {
     dispatch(setAppointment({ hourEnd: time }));
   };
 
-  console.log(appointment);
-
   return (
     <>
       <div className="flex flex-col space-y-1.5 pb-6">
