@@ -1,0 +1,91 @@
+import CustomButton from "@/components/ui/CustomButton";
+import { appointmentStatusMap } from "@/constants/appointmentStatusMap";
+import useAuth from "@/hooks/useAuth";
+import { AppointmentResponse } from "@/types/appointment";
+import { UserRole } from "@/types/user";
+import { SetStateAction } from "react";
+
+const TableData = ({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) => {
+  return (
+    <td
+      className={`py-2 align-middle truncate font-medium self-center ${className}`}
+    >
+      {text}
+    </td>
+  );
+};
+
+const AppointmentTableBody = ({
+  appointment,
+  setDeleteAppointmentInfo,
+}: {
+  appointment: AppointmentResponse;
+  setDeleteAppointmentInfo: (
+    value: SetStateAction<{
+      state: boolean;
+      appointmentId: string;
+      type: string
+    }>,
+  ) => void;
+}) => {
+  const { user } = useAuth();
+
+  return (
+    <tr
+      key={appointment.id}
+      className={`grid ${user?.role === UserRole.EMPLOYEE ? "grid-cols-6" : "grid-cols-9"} gap-12 px-6 py-1 not-last:border-b border-b-border transition-colors hover:bg-muted/50`}
+    >
+      {appointment?.vehicle ? (
+        <td className="py-2 align-middle truncate font-bold w-max">
+          {appointment.vehicle.brand} {appointment.vehicle.model}
+          <span className="block text-xs text-muted-foreground">
+            {appointment.vehicle.plate}
+          </span>
+        </td>
+      ) : (
+        <TableData text="—" className="py-0!" />
+      )}
+
+      <td className="py-2 align-middle truncate self-center font-medium">
+        <span className="block">{appointment.dateStart}</span>
+        <span className="block">{appointment.dateEnd}</span>
+      </td>
+
+      <TableData text={`${appointment.hourStart} - ${appointment.hourEnd}`} />
+
+      <TableData text={appointment.purpose} />
+
+      <TableData
+        text={
+          appointmentStatusMap[appointment.status]?.label || appointment.status
+        }
+        className={
+          appointmentStatusMap[appointment.status]?.className +
+          " px-2 text-[11px] font-semibold self-center rounded-md w-max"
+        }
+      />
+
+      <td className="self-center">
+        <CustomButton
+          text="İptal Et"
+          className="bg-background! border border-input hover:bg-accent! hover:text-accent-foreground! text-foreground! w-max h-8! shadow-sm! text-xs font-semibold"
+          handleClick={() =>
+            setDeleteAppointmentInfo({
+              state: true,
+              appointmentId: appointment.id,
+              type: "EMPLOYEE_CANCEL"
+            })
+          }
+        />
+      </td>
+    </tr>
+  );
+};
+
+export default AppointmentTableBody;
