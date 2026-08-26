@@ -1,7 +1,5 @@
 package com.yaltes.appointment_service.dto;
 
-import java.util.UUID;
-
 public class Vehicle {
     private Long id;
     private String plate;
@@ -84,4 +82,5 @@ public class Vehicle {
     public void setLocation(String location) {
         this.location = location;
     }
+
 }
