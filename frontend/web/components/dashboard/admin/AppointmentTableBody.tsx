@@ -92,7 +92,7 @@ const AppointmentTableBody = ({
 
           <CustomButton
             text="Reddet"
-            className="bg-background! border border-input hover:bg-accent! hover:text-accent-foreground! text-foreground! w-max h-8! shadow-sm! text-xs font-semibold"
+            className={`bg-background! border border-input hover:bg-accent! hover:text-accent-foreground! text-foreground! w-max h-8! shadow-sm! text-xs font-semibold ${appointment.status === AppointmentStatus.CANCELLED ? "opacity-50! bg-gray-400! text-white! pointer-events-none!" : ""}`}
             handleClick={() =>
               setDeleteAppointmentInfo({
                 state: true,

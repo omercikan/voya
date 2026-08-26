@@ -19,6 +19,7 @@ const tableTheadsEmployee = [
   "Saat",
   "Gidelecek Yer",
   "Durum",
+  "İptal Sebebi",
   "Eylemler",
 ];
 
@@ -59,7 +60,7 @@ export default function AppointmentsPage() {
       />
 
       <Table
-        theadTrClassName={`${user?.role === UserRole.EMPLOYEE ? "grid-cols-6" : "grid-cols-8"} gap-12`}
+        theadTrClassName={`${user?.role === UserRole.EMPLOYEE ? "grid-cols-7" : "grid-cols-8"} gap-12`}
         theads={
           user?.role === UserRole.EMPLOYEE
             ? tableTheadsEmployee

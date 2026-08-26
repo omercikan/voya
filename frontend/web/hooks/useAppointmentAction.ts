@@ -1,7 +1,9 @@
 import {
   useDeleteAppointmentMutation,
+  useRejectAppointmentMutation,
   useUpdateAppointmentStatusMutation,
 } from "@/store/api/appointmentApi";
+import { useUpdateVehicleKmAndLocationMutation } from "@/store/api/vehicleApi";
 import { getErrorMessage } from "@/utils/error";
 import { SetStateAction } from "react";
 import toast from "react-hot-toast";
@@ -23,6 +25,14 @@ const useAppointmentAction = (
     { isLoading: isLoadingUpdateStatusAppointment },
   ] = useUpdateAppointmentStatusMutation();
 
+  const [rejectAppointment, { isLoading: isLoadingRejectAppointment }] =
+    useRejectAppointmentMutation();
+
+  const [
+    updateVehicleKmAndLocation,
+    { isLoading: isLoadingVehicleKmAndLocation },
+  ] = useUpdateVehicleKmAndLocationMutation();
+
   const handleDelete = async (id: string) => {
     try {
       await deleteAppointment(id).unwrap();
@@ -43,6 +53,39 @@ const useAppointmentAction = (
     }
   };
 
+  const handleAppointmentReject = async (
+    appointmentId: string,
+    rejectNote: string,
+  ) => {
+    try {
+      await rejectAppointment({ appointmentId, rejectNote }).unwrap();
+      setDeleteAppointmentInfo({ state: false, appointmentId: "", type: "" });
+      toast.success("Randevu başarıyla reddeldi!");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+
+  const handleUpdateVehicleKmAndLocation = async (
+    appointmentId: string,
+    vehicleId: number,
+    km: number,
+    location: string,
+  ) => {
+    try {
+      await updateVehicleKmAndLocation({
+        vehicleId,
+        km,
+        location,
+      }).unwrap();
+      setDeleteAppointmentInfo({ state: false, appointmentId: "", type: "" });
+      handleDelete(appointmentId);
+      toast.success("Randevu başarıyla tamamlandı!");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+
   return {
     employeeDeleteAppointment: {
       handleDelete,
@@ -51,6 +94,14 @@ const useAppointmentAction = (
     adminApproveAppointment: {
       handleUpdateAppointmentStatus,
       isLoadingUpdateStatusAppointment,
+    },
+    adminRejectAppointment: {
+      handleAppointmentReject,
+      isLoadingRejectAppointment,
+    },
+    employeeCompleteAppointment: {
+      handleUpdateVehicleKmAndLocation,
+      isLoadingVehicleKmAndLocation,
     },
   };
 };

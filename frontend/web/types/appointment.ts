@@ -29,6 +29,7 @@ export interface AppointmentResponse {
   status: AppointmentStatus;
   customer: Customer;
   vehicle: Vehicle;
+  rejectNote: string
 }
 
 export interface Customer {

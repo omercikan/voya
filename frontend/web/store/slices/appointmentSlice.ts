@@ -10,6 +10,7 @@ const initialState = {
     vehicleId: "",
     purpose: "",
     note: "",
+    rejectNote: "",
   },
   vehicle: {
     id: null,

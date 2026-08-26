@@ -47,6 +47,17 @@ export const appointmentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Appointment"],
     }),
+
+    rejectAppointment: builder.mutation<
+      Appointment,
+      { appointmentId: string; rejectNote: string }
+    >({
+      query: ({ appointmentId, rejectNote }) => ({
+        url: `/appointments/${appointmentId}?status=CANCELLED&rejectNote=${rejectNote}`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Appointment"],
+    }),
   }),
 });
 
@@ -56,4 +67,5 @@ export const {
   useGetAppointmentMeQuery,
   useGetAppointmentsQuery,
   useUpdateAppointmentStatusMutation,
+  useRejectAppointmentMutation,
 } = appointmentApi;

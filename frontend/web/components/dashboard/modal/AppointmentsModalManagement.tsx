@@ -1,6 +1,17 @@
-import { SetStateAction } from "react";
+import { SetStateAction, useState } from "react";
 import CancelAppointment from "./CancelAppointment";
 import useAppointmentAction from "@/hooks/useAppointmentAction";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { setAppointment } from "@/store/slices/appointmentSlice";
+import CustomInput from "@/components/ui/CustomInput";
+import { useSearchParams } from "next/navigation";
+
+import dayjs from "dayjs";
+import "dayjs/locale/tr";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const AppointmentsModalManagement = ({
   deleteAppointmentInfo,
@@ -19,11 +30,27 @@ const AppointmentsModalManagement = ({
     }>,
   ) => void;
 }) => {
+  const { appointment } = useSelector(
+    (state: RootState) => state.appointmentSlice,
+  );
+  const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
+  const [locationNote, setLocationNote] = useState("");
+  const [kmNote, setKmNote] = useState(0);
+
   const {
     employeeDeleteAppointment: { handleDelete, isLoadingDeleteAppointment },
     adminApproveAppointment: {
       handleUpdateAppointmentStatus,
       isLoadingUpdateStatusAppointment,
+    },
+    adminRejectAppointment: {
+      handleAppointmentReject,
+      isLoadingRejectAppointment,
+    },
+    employeeCompleteAppointment: {
+      handleUpdateVehicleKmAndLocation,
+      isLoadingVehicleKmAndLocation,
     },
   } = useAppointmentAction(setDeleteAppointmentInfo);
 
@@ -86,9 +113,12 @@ const AppointmentsModalManagement = ({
             })
           }
           actionButtonClick={() =>
-            handleUpdateAppointmentStatus(deleteAppointmentInfo.appointmentId)
+            handleAppointmentReject(
+              deleteAppointmentInfo.appointmentId,
+              appointment.rejectNote,
+            )
           }
-          isSubmitting={isLoadingUpdateStatusAppointment}
+          isSubmitting={isLoadingRejectAppointment}
         >
           <div className="space-y-2">
             <label
@@ -100,10 +130,55 @@ const AppointmentsModalManagement = ({
 
             <textarea
               rows={3}
+              onChange={(e) =>
+                dispatch(setAppointment({ rejectNote: e.target.value }))
+              }
               className="flex min-h-15 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
               placeholder="Başka bir görev için araca ihtiyaç var."
             />
           </div>
+        </CancelAppointment>
+      )}
+
+      {deleteAppointmentInfo.type === "EMPLOYEE_COMPLETE" && (
+        <CancelAppointment
+          title="Rezervasyonu Tamamla"
+          description={`${searchParams.get("vehicle")} ${searchParams.get("plate")} — ${dayjs(searchParams.get("dateEnd")).locale("tr").format("DD MMMM YYYY")} ${dayjs(searchParams.get("hourEnd"), "HH:mm:ss").format("HH:mm")}`}
+          closeModalText="Vazgeç"
+          actionButtonText="Randevuyu Tamamla"
+          actionButtonClass=""
+          closeModelClick={() =>
+            setDeleteAppointmentInfo({
+              state: false,
+              appointmentId: "",
+              type: "",
+            })
+          }
+          actionButtonClick={() =>
+            handleUpdateVehicleKmAndLocation(
+              deleteAppointmentInfo.appointmentId,
+              Number(searchParams.get("long")),
+              kmNote,
+              locationNote,
+            )
+          }
+          isSubmitting={isLoadingVehicleKmAndLocation}
+        >
+          <CustomInput
+            value={locationNote}
+            onChange={(e) => setLocationNote(e.target.value)}
+            label="Aracı nereye bıraktınız?"
+            placeholder="Örneğin: A otoparkı, -1. kat"
+          />
+
+          <CustomInput
+            type="number"
+            min={0}
+            value={kmNote}
+            onChange={(e) => setKmNote(Number(e.target.value))}
+            label="KM kaçta bıraktınız?"
+            placeholder="Örneğin: 100.000"
+          />
         </CancelAppointment>
       )}
     </>
