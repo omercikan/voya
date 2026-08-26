@@ -9,11 +9,13 @@ import com.yaltes.appointment_service.entity.Appointment;
 import com.yaltes.appointment_service.entity.AppointmentStatus;
 import com.yaltes.appointment_service.repository.AppointmentRepository;
 import com.yaltes.appointment_service.service.AvailabilityService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,15 +40,20 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Appointment appointment) {
+    public ResponseEntity<?> create(@Valid @RequestBody Appointment appointment) {
         if (appointment.getStatus() == null) {
             appointment.setStatus(AppointmentStatus.PENDING);
         }
 
         List<Appointment> overlapping = repository.findOverlapping(
-                appointment.getVehicleId(), appointment.getDateStart(), appointment.getDateEnd());
+                appointment.getVehicleId(),
+                appointment.getDateStart(),
+                appointment.getDateEnd());
 
-        if (!overlapping.isEmpty()) {
+        boolean realConflict = overlapping.stream()
+                .anyMatch(existing -> actuallyOverlaps(existing, appointment));
+
+        if (realConflict) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ApiResponse(true, "Bu arac, secilen tarih araliginda baska bir randevuya sahip"));
         }
@@ -111,5 +118,14 @@ public class AppointmentController {
         response.setVehicle(vehicleClient.getVehicleById(appointment.getVehicleId()));
         response.setCustomer(customerClient.getCustomerById(appointment.getCustomerId()));
         return response;
+    }
+
+    private boolean actuallyOverlaps(Appointment existing, Appointment newAppointment) {
+        LocalDateTime existingStart = LocalDateTime.of(existing.getDateStart(), existing.getHourStart());
+        LocalDateTime existingEnd = LocalDateTime.of(existing.getDateEnd(), existing.getHourEnd());
+        LocalDateTime newStart = LocalDateTime.of(newAppointment.getDateStart(), newAppointment.getHourStart());
+        LocalDateTime newEnd = LocalDateTime.of(newAppointment.getDateEnd(), newAppointment.getHourEnd());
+
+        return existingStart.isBefore(newEnd) && existingEnd.isAfter(newStart);
     }
 }
