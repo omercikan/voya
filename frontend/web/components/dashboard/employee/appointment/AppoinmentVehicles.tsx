@@ -5,7 +5,7 @@ import { LuFuel } from "react-icons/lu";
 import { CgOptions } from "react-icons/cg";
 import { RiSpeedUpLine } from "react-icons/ri";
 import AppointmentActions from "./AppointmentActions";
-import { setAppointment } from "@/store/slices/appointmentSlice";
+import { setAppointment, setVehicle } from "@/store/slices/appointmentSlice";
 
 const AppoinmentVehicles = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,6 +13,19 @@ const AppoinmentVehicles = () => {
     (state: RootState) => state.appointmentSlice,
   );
   const { data: vehicles } = useGetVehiclesQuery();
+
+  const handleSelectVehicle = (vehicleId: string) => {
+    const vehicle = vehicles?.find((v) => String(v.id) === vehicleId);
+
+    dispatch(setAppointment({ vehicleId }));
+    dispatch(
+      setVehicle({
+        brand: vehicle?.brand || "",
+        model: vehicle?.model || "",
+        plate: vehicle?.plate || "",
+      }),
+    );
+  };
 
   return (
     <>
@@ -29,9 +42,7 @@ const AppoinmentVehicles = () => {
             <button
               key={vehicle.id}
               className={`rounded-md cursor-pointer border p-4 text-left transition-colors ${appointment.vehicleId === String(vehicle.id) ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/60"}`}
-              onClick={() =>
-                dispatch(setAppointment({ vehicleId: String(vehicle.id) }))
-              }
+              onClick={() => handleSelectVehicle(String(vehicle.id))}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

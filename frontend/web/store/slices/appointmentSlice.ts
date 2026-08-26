@@ -8,9 +8,14 @@ const initialState = {
     hourStart: "",
     hourEnd: "",
     vehicleId: "",
-    customerId: "",
     purpose: "",
     note: "",
+  },
+  vehicle: {
+    id: null,
+    brand: "",
+    model: "",
+    plate: "",
   },
 };
 
@@ -39,7 +44,21 @@ export const appointmentSlice = createSlice({
     ) => {
       Object.assign(state.appointment, action.payload);
     },
+
+    setVehicle: (
+      state,
+      action: PayloadAction<Partial<(typeof initialState)["vehicle"]>>,
+    ) => {
+      Object.assign(state.vehicle, action.payload);
+    },
+
+    clearAppointment: (state) => {
+      state.appointment = initialState.appointment;
+      state.vehicle = initialState.vehicle;
+      state.step = 1;
+    },
   },
 });
 
-export const { setStep, setAppointment } = appointmentSlice.actions;
+export const { setStep, setAppointment, setVehicle, clearAppointment } =
+  appointmentSlice.actions;
