@@ -7,14 +7,22 @@ import { FiUsers, FiUser } from "react-icons/fi";
 import Links from "./Links";
 import { UserRole } from "@/types/user";
 import LogoutButton from "@/components/auth/LogoutButton";
+import Image from "next/image";
+import Logo from "@/assets/yaltes_logo.jpg";
 
 const Sidebar = () => {
   return (
     <aside className="bg-sidebar sticky top-0 hidden h-screen w-64 shrink-0 md:block">
       <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-4">
-        <div className="flex size-9 items-center justify-center rounded-md bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground">
-          YT
-        </div>
+        <Image
+          src={Logo}
+          alt="Yaltes"
+          width={36}
+          height={36}
+          priority={true}
+          quality={100}
+          className="rounded-md"
+        />
 
         <div className="leading-tight">
           <strong className="font-display text-sm font-bold tracking-widest text-sidebar-foreground">
