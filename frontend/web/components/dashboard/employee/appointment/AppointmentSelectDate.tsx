@@ -10,133 +10,6 @@ import { setAppointment } from "@/store/slices/appointmentSlice";
 import { PickerValue } from "@mui/x-date-pickers/internals";
 import AppointmentActions from "./AppointmentActions";
 
-const mockData = {
-  range: { from: "2026-08-01", to: "2026-08-31" },
-  totalVehicles: 5,
-  days: [
-    // {
-    //   date: "2026-08-01",
-    //   status: "available",
-    //   minFreeVehicles: 5,
-    //   hourly: [
-    //     { time: "08:00-09:00", free: 5 },
-    //     { time: "09:00-10:00", free: 5 },
-    //     { time: "10:00-11:00", free: 5 },
-    //     { time: "11:00-12:00", free: 5 },
-    //     { time: "13:00-14:00", free: 5 },
-    //     { time: "14:00-15:00", free: 5 },
-    //     { time: "15:00-16:00", free: 5 },
-    //     { time: "16:00-17:00", free: 5 },
-    //   ],
-    // },
-    {
-      date: "2026-08-25",
-      status: "available",
-      minFreeVehicles: 3,
-      hourly: [
-        { time: "08:00-09:00", free: 3 },
-        { time: "09:00-10:00", free: 3 },
-        { time: "10:00-11:00", free: 5 },
-        { time: "11:00-12:00", free: 4 },
-        { time: "13:00-14:00", free: 4 },
-        { time: "14:00-15:00", free: 4 },
-        { time: "15:00-16:00", free: 4 },
-        { time: "16:00-17:00", free: 4 },
-      ],
-    },
-    {
-      date: "2026-08-26",
-      status: "full",
-      minFreeVehicles: 1,
-      hourly: [
-        { time: "08:00-09:00", free: 1 },
-        { time: "09:00-10:00", free: 1 },
-        { time: "10:00-11:00", free: 1 },
-        { time: "11:00-12:00", free: 1 },
-        { time: "13:00-14:00", free: 1 },
-        { time: "14:00-15:00", free: 1 },
-        { time: "15:00-16:00", free: 1 },
-        { time: "16:00-17:00", free: 1 },
-      ],
-    },
-    {
-      date: "2026-08-27",
-      status: "limited",
-      minFreeVehicles: 0,
-      hourly: [
-        { time: "08:00-09:00", free: 1 },
-        { time: "09:00-10:00", free: 1 },
-        { time: "10:00-11:00", free: 0 },
-        { time: "11:00-12:00", free: 1 },
-        { time: "13:00-14:00", free: 2 },
-        { time: "14:00-15:00", free: 1 },
-        { time: "15:00-16:00", free: 1 },
-        { time: "16:00-17:00", free: 1 },
-      ],
-    },
-    {
-      date: "2026-08-28",
-      status: "available",
-      minFreeVehicles: 3,
-      hourly: [
-        { time: "08:00-09:00", free: 5 },
-        { time: "09:00-10:00", free: 5 },
-        { time: "10:00-11:00", free: 5 },
-        { time: "11:00-12:00", free: 5 },
-        { time: "13:00-14:00", free: 5 },
-        { time: "14:00-15:00", free: 5 },
-        { time: "15:00-16:00", free: 5 },
-        { time: "16:00-17:00", free: 5 },
-      ],
-    },
-    {
-      date: "2026-08-29",
-      status: "full",
-      minFreeVehicles: 0,
-      hourly: [
-        { time: "08:00-09:00", free: 0 },
-        { time: "09:00-10:00", free: 0 },
-        { time: "10:00-11:00", free: 0 },
-        { time: "11:00-12:00", free: 0 },
-        { time: "13:00-14:00", free: 0 },
-        { time: "14:00-15:00", free: 0 },
-        { time: "15:00-16:00", free: 0 },
-        { time: "16:00-17:00", free: 0 },
-      ],
-    },
-    {
-      date: "2026-08-30",
-      status: "available",
-      minFreeVehicles: 0,
-      hourly: [
-        { time: "08:00-09:00", free: 5 },
-        { time: "09:00-10:00", free: 5 },
-        { time: "10:00-11:00", free: 5 },
-        { time: "11:00-12:00", free: 5 },
-        { time: "13:00-14:00", free: 5 },
-        { time: "14:00-15:00", free: 5 },
-        { time: "15:00-16:00", free: 5 },
-        { time: "16:00-17:00", free: 5 },
-      ],
-    },
-    {
-      date: "2026-08-31",
-      status: "available",
-      minFreeVehicles: 0,
-      hourly: [
-        { time: "08:00-09:00", free: 5 },
-        { time: "09:00-10:00", free: 5 },
-        { time: "10:00-11:00", free: 5 },
-        { time: "11:00-12:00", free: 5 },
-        { time: "13:00-14:00", free: 5 },
-        { time: "14:00-15:00", free: 5 },
-        { time: "15:00-16:00", free: 5 },
-        { time: "16:00-17:00", free: 5 },
-      ],
-    },
-  ],
-};
-
 const AppointmentSelectDate = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { appointment } = useSelector(
@@ -194,14 +67,9 @@ const AppointmentSelectDate = () => {
                 className="bg-background rounded-md border border-border mx-0!"
                 value={selectedEndDate}
                 onChange={(newValue) => handleSelectDate(newValue, "end")}
-                // shouldDisableDate={(date) =>
-                //   date.isBefore(dayjs(selectedStartDate).startOf("day")) ||
-                //   mockData.days.find(
-                //     (day) => day.date === date.format("YYYY-MM-DD"),
-                //   )?.status === "full" ||
-                //   selectedStartDate === null
-                // }
-
+                shouldDisableDate={(date) =>
+                  date.isBefore(dayjs(selectedStartDate).startOf("day"))
+                }
                 disablePast
               />
             </div>
