@@ -5,9 +5,10 @@ import { useGetAppointmentMeQuery } from "@/store/api/appointmentApi";
 import { useState } from "react";
 import AppointmentsModalManagement from "../modal/AppointmentsModalManagement";
 import Table from "@/components/ui/Table";
+import EmptyState from "@/components/ui/EmptyState";
 import AppointmentTableBody from "./appointment/AppointmentTableBody";
 import useAuth from "@/hooks/useAuth";
-import { LuPlus, LuClock } from "react-icons/lu";
+import { LuPlus, LuClock, LuCalendarX } from "react-icons/lu";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { RiCalendarScheduleLine } from "react-icons/ri";
 
@@ -129,13 +130,27 @@ const EmployeeDashboard = () => {
           "Eylemler",
         ]}
       >
-        {appointments?.map((appointment) => (
-          <AppointmentTableBody
-            key={appointment.id}
-            appointment={appointment}
-            setDeleteAppointmentInfo={setDeleteAppointmentInfo}
-          />
-        ))}
+        {appointments?.length === 0 ? (
+          <tr>
+            <td colSpan={7}>
+              <EmptyState
+                icon={LuCalendarX}
+                title="Henüz randevunuz yok"
+                description="Yeni bir randevu oluşturarak başlayabilirsiniz."
+                actionText="Yeni Randevu"
+                onAction={() => redirect("/appointments/new")}
+              />
+            </td>
+          </tr>
+        ) : (
+          appointments?.map((appointment) => (
+            <AppointmentTableBody
+              key={appointment.id}
+              appointment={appointment}
+              setDeleteAppointmentInfo={setDeleteAppointmentInfo}
+            />
+          ))
+        )}
       </Table>
 
       <AppointmentsModalManagement
