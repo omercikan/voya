@@ -1,20 +1,27 @@
 import CustomButton from "@/components/ui/CustomButton";
 import useAuth from "@/hooks/useAuth";
 import { useLogoutMutation } from "@/store/api/authApi";
+import { resetAppointment } from "@/store/slices/appointmentSlice";
+import { resetLink } from "@/store/slices/linkSlice";
+import { AppDispatch } from "@/store/store";
 import { getErrorMessage } from "@/utils/error";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { LuLogOut } from "react-icons/lu";
+import { useDispatch } from "react-redux";
 
 const LogoutButton = () => {
   const [logout] = useLogoutMutation();
   const router = useRouter();
   const { user } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = async () => {
     try {
       await logout().unwrap();
       router.replace("/login");
+      dispatch(resetAppointment());
+      dispatch(resetLink());
     } catch (error) {
       toast.error(getErrorMessage(error));
     }

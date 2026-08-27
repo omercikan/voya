@@ -11,7 +11,11 @@ export const linkSlice = createSlice({
     setActiveLink: (state, action: PayloadAction<string>) => {
       state.activeLink = action.payload;
     },
+
+    resetLink: () => {
+      return initialState;
+    },
   },
 });
 
-export const { setActiveLink } = linkSlice.actions;
+export const { setActiveLink, resetLink } = linkSlice.actions;

@@ -58,8 +58,17 @@ export const appointmentSlice = createSlice({
       state.vehicle = initialState.vehicle;
       state.step = 1;
     },
+
+    resetAppointment: () => {
+      return initialState;
+    },
   },
 });
 
-export const { setStep, setAppointment, setVehicle, clearAppointment } =
-  appointmentSlice.actions;
+export const {
+  setStep,
+  setAppointment,
+  setVehicle,
+  clearAppointment,
+  resetAppointment,
+} = appointmentSlice.actions;
