@@ -44,6 +44,7 @@ A microservices-based system for managing vehicle records and service appointmen
   - [Appointment Service](#appointment-service-1)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 
 ## Overview
@@ -465,7 +466,7 @@ Creates a new user account. Public.
 | `DELETE` | `/api/users/{id}` | Deletes a user |
 
 ### Vehicle Service
-
+ 
 | Method | Path | Access | Description |
 |---|---|---|---|
 | `POST` | `/api/vehicles` | `ADMIN` | Creates a vehicle |
@@ -475,6 +476,206 @@ Creates a new user account. Public.
 | `PATCH` | `/api/vehicles/{id}/status` | `ADMIN` | Updates availability status (`AVAILABLE` / `OUT_OF_SERVICE`) |
 | `PATCH` | `/api/vehicles/{id}/km-location` | Any authenticated caller | Updates mileage and/or location |
 | `DELETE` | `/api/vehicles/{id}` | `ADMIN` | Deletes a vehicle |
+ 
+#### `POST /api/vehicles`
+ 
+Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are normalized and validated before persistence (see [Key design decisions](#vehicle-service) above).
+ 
+**Request body:**
+ 
+```json
+{
+  "plate": "34ABC123",
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2022,
+  "gear": "Automatic",
+  "km": 15000,
+  "fuel": "Gasoline",
+  "location": "Istanbul"
+}
+```
+ 
+**Success response — `201 Created`:**
+ 
+```json
+{
+  "id": 1,
+  "plate": "34ABC123",
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2022,
+  "gear": "Automatic",
+  "km": 15000,
+  "fuel": "Gasoline",
+  "location": "Istanbul",
+  "status": "AVAILABLE"
+}
+```
+ 
+**Error response — `400 Bad Request`** (duplicate plate, invalid format, or any other validation failure — all failures for a single request are collected and returned together):
+ 
+```json
+{
+  "timestamp": "2026-08-19T09:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "messages": [
+    "Bu plaka zaten kayıtlı: 34ABC123",
+    "Plaka formatı geçersiz: 41444222",
+    "Kilometre 0'dan küçük olamaz: -50",
+    "Geçersiz araç yılı: 1800"
+  ],
+  "success": false
+}
+```
+ 
+> The four messages above illustrate the different validation failures this endpoint can return — a single request typically triggers one or a related few of them (e.g. an invalid plate together with an invalid year), not all four at once.
+ 
+**Error response — `401 Unauthorized`** (caller is not `ADMIN`):
+ 
+```json
+{
+  "timestamp": "2026-08-19T09:00:00",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Geçersiz rol.",
+  "success": false
+}
+```
+ 
+#### `GET /api/vehicles`
+ 
+Lists all vehicles. Open to any authenticated caller.
+ 
+**Success response — `200 OK`:**
+ 
+```json
+[
+  {
+    "id": 1,
+    "plate": "34ABC123",
+    "brand": "Toyota",
+    "model": "Corolla",
+    "year": 2022,
+    "gear": "Automatic",
+    "km": 15000,
+    "fuel": "Gasoline",
+    "location": "Istanbul",
+    "status": "AVAILABLE"
+  },
+  {
+    "id": 2,
+    "plate": "06XYZ789",
+    "brand": "Renault",
+    "model": "Clio",
+    "year": 2019,
+    "gear": "Manual",
+    "km": 62000,
+    "fuel": "Diesel",
+    "location": "Ankara",
+    "status": "OUT_OF_SERVICE"
+  }
+]
+```
+ 
+#### `GET /api/vehicles/{id}`
+ 
+Fetches a single vehicle by id. Open to any authenticated caller.
+ 
+**Success response — `200 OK`:** same shape as a single item above.
+ 
+**Error response — `404 Not Found`:**
+ 
+```json
+{
+  "timestamp": "2026-08-19T09:00:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Vehicle not found with id: 99",
+  "success": false
+}
+```
+ 
+#### `PATCH /api/vehicles/{id}`
+ 
+Updates one or more vehicle fields. Requires `ADMIN`. Only the fields present in the body are changed; omitted fields keep their existing value. Mileage can only be increased or left unchanged — a lower `km` than the vehicle's current value is rejected.
+ 
+**Request body (partial):**
+ 
+```json
+{
+  "brand": "Honda",
+  "km": 20000
+}
+```
+ 
+**Success response — `200 OK`:** the full, updated `VehicleResponse` (same shape as above).
+ 
+**Error response — `400 Bad Request`** (plate already taken by another vehicle):
+ 
+```json
+{
+  "timestamp": "2026-08-19T09:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "messages": [
+    "Bu plaka başka bir araca kayıtlı!"
+  ],
+  "success": false
+}
+```
+ 
+#### `PATCH /api/vehicles/{id}/status`
+ 
+Updates only the availability status. Requires `ADMIN`. `status` is passed as a query parameter, not a body.
+ 
+**Request:**
+ 
+```
+PATCH /api/vehicles/5/status?status=OUT_OF_SERVICE
+```
+ 
+**Success response — `200 OK`:** the full, updated `VehicleResponse` with the new `status`.
+ 
+#### `PATCH /api/vehicles/{id}/km-location`
+ 
+Updates only mileage and/or location. Open to any authenticated caller (not just `ADMIN`) — this is the endpoint an `EMPLOYEE` uses after completing a job. Mileage can only be increased or left unchanged — a lower `km` than the vehicle's current value is rejected.
+ 
+**Request body:**
+ 
+```json
+{
+  "km": 45500,
+  "location": "Ankara"
+}
+```
+ 
+**Success response — `200 OK`:** the full, updated `VehicleResponse`.
+ 
+**Error response — `400 Bad Request`** (mileage decrease attempted):
+ 
+```json
+{
+  "timestamp": "2026-08-19T09:00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "messages": [
+    "Kilometre azaltılamaz. Mevcut: 20000, gönderilen: 15000"
+  ],
+  "success": false
+}
+```
+ 
+**Error response — `404 Not Found`** if the vehicle doesn't exist.
+ 
+#### `DELETE /api/vehicles/{id}`
+ 
+Deletes a vehicle. Requires `ADMIN`.
+ 
+**Success response:** `204 No Content`
+ 
+**Error response — `404 Not Found`** if the vehicle doesn't exist (same shape as the `GET` 404 above).
 
 ### Appointment Service
 
@@ -525,6 +726,14 @@ Creates a new user account. Public.
 - Keep API responses wrapped in the shared `ApiResponse<T>` envelope for consistency across services
 - Add new exception types to each service's `GlobalExceptionHandler` rather than handling errors inline in controllers
 - On the frontend, add new server state through an RTK Query API slice under `store/api/`, and keep shared types in sync with backend DTOs under `types/`
+
+## Contributors
+ 
+| Name | GitHub | Contribution |
+|---|---|---|
+| [Emir Özer] | [@FreeZeBoaRd](https://github.com/FreeZeBoaRd) | Vehicle Service |
+| [Muhammet Egehan Kırmızı] | [@SlinderSlaz](https://github.com/SlinderSlaz) | Appointment Service |
+| [Ömer Çıkan] | [@omercikan](https://github.com/omercikan) | Identity Service, API Gateway, Frontend |
 
 ## License
 
