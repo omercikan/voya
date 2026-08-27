@@ -7,8 +7,14 @@ import AppointmentTableBody from "./AppointmentTableBody";
 import { useState } from "react";
 import AppointmentsModalManagement from "../modal/AppointmentsModalManagement";
 import Table from "@/components/ui/Table";
+import EmptyState from "@/components/ui/EmptyState";
 import dayjs from "dayjs";
-import { LuClock, LuCalendarDays, LuCarFront } from "react-icons/lu";
+import {
+  LuClock,
+  LuCalendarDays,
+  LuCarFront,
+  LuCalendarX,
+} from "react-icons/lu";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { IconType } from "react-icons";
 import { useGetVehiclesQuery } from "@/store/api/vehicleApi";
@@ -119,13 +125,25 @@ const AdminDashboard = () => {
           "Eylemler",
         ]}
       >
-        {filterPendingAppointments?.map((appointment) => (
-          <AppointmentTableBody
-            key={appointment.id}
-            appointment={appointment}
-            setDeleteAppointmentInfo={setDeleteAppointmentInfo}
-          />
-        ))}
+        {filterPendingAppointments?.length === 0 ? (
+          <tr>
+            <td colSpan={8}>
+              <EmptyState
+                icon={LuCalendarX}
+                title="Bekleyen randevu talebi yok"
+                description="Çalışanlar yeni bir talep oluşturduğunda burada görünecek."
+              />
+            </td>
+          </tr>
+        ) : (
+          filterPendingAppointments?.map((appointment) => (
+            <AppointmentTableBody
+              key={appointment.id}
+              appointment={appointment}
+              setDeleteAppointmentInfo={setDeleteAppointmentInfo}
+            />
+          ))
+        )}
       </Table>
 
       <AppointmentsModalManagement
