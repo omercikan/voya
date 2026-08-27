@@ -7,13 +7,16 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Java-26-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 26"/>
   <img src="https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot 4.1.0"/>
+  <img src="https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven"/>
+  <img src="https://img.shields.io/badge/Spring%20Cloud%20Gateway-MVC-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Cloud Gateway"/>
+  <img src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js 16"/>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19"/>
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16"/>
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose"/>
-  <img src="https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven"/>
   <img src="https://img.shields.io/badge/License-Proprietary-lightgrey?style=for-the-badge" alt="License"/>
 </p>
 
-A microservices-based backend system for managing vehicle records and service appointments, built with Spring Boot. The system is organized as independently deployable services, each owning its own database, and is designed to run behind a shared API gateway.
+A microservices-based system for managing vehicle records and service appointments, built with Spring Boot on the backend and Next.js on the frontend. The system is organized as independently deployable services, each owning its own database, and is exposed to clients through a single API gateway that also owns authentication.
 
 ## Table of Contents
 
@@ -22,64 +25,85 @@ A microservices-based backend system for managing vehicle records and service ap
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Services](#services)
+  - [API Gateway](#api-gateway)
   - [Identity Service](#identity-service)
   - [Vehicle Service](#vehicle-service)
   - [Appointment Service](#appointment-service)
+  - [Frontend (Web)](#frontend-web)
+- [Authentication & Authorization](#authentication--authorization)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Running in Development Mode](#running-in-development-mode)
   - [Running in Production Mode](#running-in-production-mode)
   - [Running a Single Service Locally](#running-a-single-service-locally)
+  - [Running the Frontend Locally](#running-the-frontend-locally)
 - [Environment Variables](#environment-variables)
 - [API Reference](#api-reference)
+  - [Identity Service](#identity-service-1)
+  - [Vehicle Service](#vehicle-service-1)
+  - [Appointment Service](#appointment-service-1)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Overview
 
-This repository hosts the backend infrastructure for a vehicle service appointment platform. Each business capability is isolated into its own Spring Boot microservice with a dedicated PostgreSQL database, following a database-per-service pattern. Services communicate over HTTP and are intended to be exposed through a single API gateway.
+This repository hosts both the backend infrastructure and the web client for a vehicle service appointment platform. Each business capability is isolated into its own Spring Boot microservice with a dedicated PostgreSQL database, following a database-per-service pattern. All external traffic passes through an API Gateway, which is also responsible for validating sessions and forwarding identity information (user id, role) to downstream services via headers.
 
-**Core capabilities (planned and in progress):**
+**Core capabilities:**
 
-- User identity management, authentication, and role-based access control
-- Vehicle registration and management per customer
-- Service appointment scheduling and tracking
+- User identity management, authentication (JWT via HTTP-only cookie), and role-based access control (`ADMIN` / `EMPLOYEE`)
+- Vehicle registration, availability status, and mileage/location tracking
+- Service appointment scheduling, conflict detection, availability lookup, and status workflow (pending → confirmed/cancelled/completed)
+- A Next.js dashboard for admins and employees to manage vehicles, employees, and appointments
 
 ## Architecture
 
 ```
-                        ┌─────────────────────┐
-                        │     API Gateway     │
-                        │   (gateway/api-     │
-                        │      gateway)       │
-                        └──────────┬──────────┘
-                                   │
-        ┌──────────────────────────┼──────────────────────────┐
-        │                          │                          │
-┌───────▼──────────┐      ┌────────▼────────┐        ┌────────▼────────────┐
-│ Identity Service │      │ Vehicle Service │        │ Appointment Service │
-│   (port 8083)    │      │   (port 8081)   │        │    (port 8082)      │
-└───────┬──────────┘      └────────┬────────┘        └────────┬────────────┘
-        │                          │                          │
-┌───────▼────────┐        ┌────────▼────────┐        ┌────────▼─────────┐
-│  identity-db   │        │   vehicle-db    │        │  appointment-db  │
-│  (PostgreSQL)  │        │  (PostgreSQL)   │        │  (PostgreSQL)    │
-└────────────────┘        └─────────────────┘        └──────────────────┘
+                                   ┌───────────────────┐
+                                   │   Frontend (Web)  │
+                                   │  Next.js, port    │
+                                   │      3000         │
+                                   └─────────┬─────────┘
+                                             │  HTTP (cookies)
+                                   ┌─────────▼───────────┐
+                                   │     API Gateway     │
+                                   │ (gateway/api-       │
+                                   │   gateway) — 8080   │
+                                   │  JWT validation +   │
+                                   │  header injection   │
+                                   └──────────┬──────────┘
+                                              │
+        ┌───────────────────────────┬────────┴─────────────────────────┐
+        │                           │                                  │
+┌───────▼──────────┐      ┌─────────▼───────┐                ┌─────────▼───────────┐
+│ Identity Service │      │ Vehicle Service │                │ Appointment Service │
+│   (port 8083)    │      │   (port 8081)   │◄───────────────┤    (port 8082)      │
+└───────┬──────────┘◄─────┴────────┬────────┘  HTTP clients  └────────┬────────────┘
+        │           HTTP clients   │        (vehicle/customer lookup) │
+┌───────▼────────┐        ┌────────▼────────┐                ┌────────▼─────────┐
+│  identity-db   │        │   vehicle-db    │                │  appointment-db  │
+│  (PostgreSQL)  │        │  (PostgreSQL)   │                │  (PostgreSQL)    │
+└────────────────┘        └─────────────────┘                └──────────────────┘
 ```
 
-Each service is fully independent: its own codebase, its own database, its own container, and its own lifecycle. Services do not share a database schema.
+Each backend service is fully independent: its own codebase, its own database, its own container, and its own lifecycle. Services do not share a database schema. The Appointment Service calls the Identity Service and Vehicle Service over HTTP to enrich appointment data with customer and vehicle details, and the API Gateway is the only component that talks directly to the outside world.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Language | Java 26 |
-| Framework | Spring Boot 4.1.0 |
+| Backend Language | Java 26 |
+| Backend Framework | Spring Boot 4.1.0 |
+| Gateway | Spring Cloud Gateway (MVC / WebMVC flavor) |
 | Persistence | Spring Data JPA / Hibernate |
 | Database | PostgreSQL 16 |
-| Security | Spring Security, BCrypt |
-| Build Tool | Maven (with Maven Wrapper) |
+| Security | Spring Security, JWT (`jjwt`), BCrypt, `@PreAuthorize` |
+| Backend Build Tool | Maven (with Maven Wrapper) |
+| Frontend Framework | Next.js 16 (App Router), React 19 |
+| Frontend Language | TypeScript |
+| Frontend State/Data | Redux Toolkit + RTK Query |
+| Frontend UI | Tailwind CSS 4, MUI (date pickers), react-hook-form, zod, react-hot-toast |
 | Containerization | Docker, Docker Compose |
 | Boilerplate Reduction | Lombok |
 
@@ -91,23 +115,38 @@ yaltes-vehicle-appointment/
 ├── docker-compose.dev.yml          # Development orchestration (hot-reload via Maven)
 ├── docs/                           # Project documentation
 ├── frontend/
-│   └── web/                        # Frontend application (not yet implemented)
+│   └── web/                        # Next.js dashboard (admin & employee views)
 ├── gateway/
-│   └── api-gateway/                # API Gateway service (not yet implemented)
-├── infrastructure/
-│   ├── docker/                     # Shared Docker resources
-│   └── redis/                      # Redis configuration (not yet implemented)
+│   └── api-gateway/                # API Gateway — routing, CORS, JWT validation
 └── services/
-    ├── identity-service/           # User management, auth, and access control
-    ├── vehicle-service/            # Vehicle records (skeleton)
-    └── appointment-service/        # Appointment scheduling (skeleton)
+    ├── identity-service/           # User management, auth, JWT issuance
+    ├── vehicle-service/            # Vehicle CRUD, availability, mileage/location
+    └── appointment-service/        # Appointment scheduling, availability, status workflow
 ```
 
 ## Services
 
+### API Gateway
+
+**Package:** `com.yaltes.api_gateway`
+**Default port:** `8080`
+
+The single entry point for all client traffic. Built on Spring Cloud Gateway's WebMVC (functional routing) flavor.
+
+**Responsibilities:**
+
+- Routes `/api/auth/**` to the Identity Service (login is public; logout requires a valid session)
+- Routes `/api/users/**` to the Identity Service
+- Routes `/api/vehicles/**` to the Vehicle Service
+- Routes `/appointments/**` to the Appointment Service
+- Validates the JWT stored in the `access_token` HTTP-only cookie on every protected route
+- On success, injects `X-User-Id` and `X-User-Role` headers into the forwarded request so downstream services never need to parse the token themselves
+- Returns `401` with a Turkish-language error message on missing, expired, or invalid tokens
+- Applies CORS rules restricted to a single configured client origin, with credentials allowed
+
 ### Identity Service
 
-Manages user accounts, roles, and credentials. This is the most mature service in the repository.
+Manages user accounts, roles, credentials, and authentication.
 
 **Package:** `com.yaltes.identity_service`
 **Default port:** `8080` (mapped to host port `8083`)
@@ -116,37 +155,112 @@ Manages user accounts, roles, and credentials. This is the most mature service i
 
 | Layer | Responsibility |
 |---|---|
-| `controller` | Exposes REST endpoints (`UserController`) |
-| `service` | Business logic, including password hashing and duplicate-email checks |
+| `controller` | `UserController` (CRUD + self/lookup), `AuthController` (login/logout) |
+| `service` | `UserService`, `AuthService`, `JwtService` |
 | `repository` | Spring Data JPA repository for `User` |
 | `mapper` | Converts between entities and DTOs |
 | `entity` | `User` JPA entity |
-| `enums` | `Role` (`ADMIN`, `EMPLOYEE`) |
-| `dto` | `CreateUserRequest`, `UpdateUserRequest`, `UserResponse`, `ApiResponse` |
-| `exception` | `EmailAlreadyExistsException`, `GlobalExceptionHandler` |
+| `enums` | `Role` (`ADMIN`, `EMPLOYEE`), `Status` (`ACTIVE`, `INACTIVE`) |
+| `dto` | `CreateUserRequest`, `UpdateUserRequest`, `UpdateStatusRequest`, `LoginUserRequest`, `UserResponse`, `ApiResponse` |
+| `exception` | `EmailAlreadyExistsException`, `UserNotFoundException`, `UnauthorizedUserException`, `GlobalExceptionHandler` |
 | `config` | `PasswordConfig` (BCrypt), `WebSecurityConfig` |
 
 **Key design decisions:**
 
 - All API responses follow a consistent `ApiResponse<T>` envelope (`success`, `data`, `message`), with `null` fields omitted from the JSON output.
 - Passwords are hashed with BCrypt before persistence; plain-text passwords are never stored.
+- Login issues a JWT (via `jjwt`) embedding `userId` and `role`, returned as an HTTP-only, `Strict` same-site cookie (`access_token`) rather than in the response body.
+- Every request routed through the gateway arrives with `X-User-Id` / `X-User-Role` headers already populated, which `UserController` uses to authorize update/delete/status/list operations against the caller's role.
 - Duplicate email registration is rejected with an `EmailAlreadyExistsException`, mapped to `409 Conflict`.
 - Validation errors and unexpected exceptions are centrally handled via `@RestControllerAdvice`, so no endpoint needs its own try/catch block.
-- `POST /api/users` is publicly accessible; every other endpoint requires authentication (configured in `WebSecurityConfig`).
+- `POST /api/users` is publicly accessible (used for onboarding); every other endpoint expects the gateway-injected identity headers.
 
 ### Vehicle Service
+
+Manages the fleet: registration, availability status, and odometer/location updates.
 
 **Package:** `com.yaltes.vehicle_service`
 **Default port:** `8080` (mapped to host port `8081`)
 
-Currently a bootstrapped Spring Boot application with its own database and Docker setup. Domain logic (vehicle entities, endpoints, business rules) has not yet been implemented.
+**Implemented layers:**
+
+| Layer | Responsibility |
+|---|---|
+| `controller` | `VehicleController` — full CRUD plus status and km/location patches |
+| `service` | `VehicleService` |
+| `component` | `VehicleMapper`, `VehicleValidator` |
+| `repository` | Spring Data JPA repository for `Vehicle` |
+| `entity` | `Vehicle` JPA entity |
+| `enums` | `AvailabilityStatus` (`AVAILABLE`, `OUT_OF_SERVICE`) |
+| `dto` | `VehicleRequest`, `VehicleResponse` |
+| `exception` | `ResourceNotFoundException`, `RoleException`, `ValidationException`, `GlobalExceptionHandler`, `ErrorResponse` |
+| `security` | `HeaderAuthenticationFilter` (reads `X-User-Role` forwarded by the gateway) |
+| `config` | `SecurityConfig` |
+
+**Key design decisions:**
+
+- Vehicles are uniquely identified by license plate.
+- Create, update, status change, and delete are restricted to `ADMIN` via method-level `@PreAuthorize("hasAuthority('ADMIN')")`, backed by a custom `HeaderAuthenticationFilter` that authenticates the request based on the `X-User-Role` header set by the gateway (no local password/session handling in this service).
+- Reads (`GET /api/vehicles`, `GET /api/vehicles/{id}`) and the km/location patch are open to any authenticated caller.
 
 ### Appointment Service
+
+Manages scheduling: creating appointments, checking availability, and moving appointments through their status lifecycle.
 
 **Package:** `com.yaltes.appointment_service`
 **Default port:** `8080` (mapped to host port `8082`)
 
-Currently a bootstrapped Spring Boot application with its own database and Docker setup. Domain logic (appointment entities, endpoints, business rules) has not yet been implemented.
+**Implemented layers:**
+
+| Layer | Responsibility |
+|---|---|
+| `controller` | `AppointmentController` — create, list, per-vehicle busy dates, availability, status update, delete |
+| `service` | `AvailabilityService` — computes free/busy days and hour slots |
+| `client` | `VehicleClient`, `CustomerClient` — HTTP clients calling the Vehicle and Identity services |
+| `repository` | `AppointmentRepository` (custom overlap/status/customer queries) |
+| `entity` | `Appointment`, `AppointmentStatus` (`PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`) |
+| `dto` | `ApiResponse`, `AppointmentResponse`, `AvailabilityResponse`, `DateRange`, `DayAvailability`, `HourSlot`, `Customer`, `Vehicle` |
+| `exception` | `GlobalExceptionHandler` |
+
+**Key design decisions:**
+
+- Appointment IDs are UUIDs, generated at persistence time.
+- On creation, the service checks for real date/time overlap against existing appointments for the same vehicle and rejects conflicting requests with `409 Conflict`.
+- Appointment responses are enriched on the fly: `VehicleClient` and `CustomerClient` fetch vehicle and customer details from the Vehicle and Identity services so the frontend never needs to join data itself.
+- `GET /appointments/availability` and `GET /appointments/busy-vehicles` support the booking UI by returning day- and hour-level availability for a given date range.
+- Cancelling an appointment (`status=CANCELLED`) accepts an optional `rejectNote` explaining the reason.
+
+### Frontend (Web)
+
+**Location:** `frontend/web`
+**Framework:** Next.js 16 (App Router) + React 19, TypeScript, Tailwind CSS 4
+
+A role-aware dashboard consumed by admins and employees.
+
+**Structure highlights:**
+
+- `app/(auth)/login` — public login page
+- `app/(dashboard)/dashboard`, `/vehicles`, `/appointments`, `/appointments/new`, `/employees`, `/profile` — protected routes gated by a Next.js middleware-style `proxy.ts` that redirects unauthenticated users to `/login` based on the presence of the `access_token` cookie
+- `components/auth` — `LoginForm`, `LogoutButton`, `RoleGuard`, `AuthPanel`, `AuthLayout`
+- `components/dashboard/admin` — `AdminDashboard`, appointment table for admins
+- `components/dashboard/employee` — `EmployeeDashboard` and a multi-step appointment booking flow (`AppointmentStep`, `AppointmentSelectDate`, `AppointmentSelectTime`, `AppoinmentVehicles`, `AppoinmentSummary`, `AppoinmentDetails`, `AppointmentActions`)
+- `components/dashboard/modal` — `AddEmployee`, `AddVehicle`, `CancelAppointment`, `AppointmentsModalManagement`
+- `components/dashboard/sidebar` — role-filtered navigation (`Links`, `Sidebar`)
+- `components/ui` — shared primitives: `CustomButton`, `CustomInput`, `CustomSelect`, `Table`, `EmptyState`, `DateProvider`
+- `store/` — Redux Toolkit store with RTK Query API slices (`authApi`, `userApi`, `vehicleApi`, `appointmentApi`) built on a shared `baseApi` (`credentials: "include"` so the `access_token` cookie is always sent)
+- `hooks/useAuth` — wraps `userApi`'s "me" query to expose the current user and auth state app-wide
+- `types/` — shared TypeScript types mirroring the backend DTOs (`user`, `vehicle`, `appointment`, `auth`)
+
+The frontend never talks to individual services directly — every request goes through the API Gateway at `NEXT_PUBLIC_API_URL`, and the browser's `access_token` cookie is what authenticates each call.
+
+## Authentication & Authorization
+
+1. The client calls `POST /api/auth/login` on the gateway (routed straight to the Identity Service).
+2. On success, the Identity Service returns a JWT in an HTTP-only, `Secure`, `SameSite=Strict` cookie named `access_token`. The token embeds `userId` and `role` and expires after `jwt.expiration` milliseconds (30 minutes by default).
+3. For every subsequent request to a protected route, the gateway's `JwtAuthenticationFilter` reads the cookie, validates the token, and — if valid — forwards the request downstream with `X-User-Id` and `X-User-Role` headers set. Missing/expired/invalid tokens short-circuit with `401` and a Turkish error message.
+4. Downstream services trust these headers as-is (they're never exposed to the internet directly): the Identity Service uses them for authorization checks in `UserController`, and the Vehicle Service authenticates them through a lightweight `HeaderAuthenticationFilter` feeding Spring Security's `@PreAuthorize`.
+5. Two roles exist: `ADMIN` (full management access — vehicles, employees, appointment approval) and `EMPLOYEE` (booking and viewing their own appointments).
+6. `POST /api/auth/logout` clears the cookie; there is no server-side token blacklist — the session simply expires or the cookie is removed.
 
 ## Getting Started
 
@@ -154,11 +268,12 @@ Currently a bootstrapped Spring Boot application with its own database and Docke
 
 - [Docker](https://www.docker.com/) and Docker Compose
 - Java 26 JDK (only required for running a service outside Docker)
-- Maven (optional — each service includes the Maven Wrapper, `mvnw`)
+- Maven (optional — each backend service includes the Maven Wrapper, `mvnw`)
+- Node.js 20+ and npm (only required for running the frontend outside Docker)
 
 ### Running in Development Mode
 
-Development mode runs each service inside a Maven container with the source code mounted as a volume, so changes are picked up automatically via Spring DevTools without rebuilding the image.
+Development mode runs each backend service inside a Maven container with the source code mounted as a volume, so changes are picked up automatically without rebuilding the image.
 
 ```bash
 docker compose -f docker-compose.dev.yml up
@@ -167,7 +282,10 @@ docker compose -f docker-compose.dev.yml up
 This starts:
 
 - `vehicle-db`, `appointment-db`, `identity-db` — PostgreSQL 16 instances
-- `vehicle-service`, `appointment-service`, `identity-service` — running via `mvn spring-boot:run`
+- `identity-service`, `vehicle-service`, `appointment-service` — running via `mvn spring-boot:run`
+- `api-gateway` — running via `mvn spring-boot:run`, depending on `identity-service`
+
+> The frontend is not part of `docker-compose.dev.yml` yet; run it separately as described in [Running the Frontend Locally](#running-the-frontend-locally).
 
 To stop and remove the containers:
 
@@ -183,7 +301,7 @@ docker compose -f docker-compose.dev.yml down -v
 
 ### Running in Production Mode
 
-Production mode builds a standalone image for each service using its multi-stage `Dockerfile` (Maven build stage → lightweight JRE runtime stage).
+Production mode builds a standalone image for each backend service using its multi-stage `Dockerfile` (Maven build stage → lightweight JRE runtime stage). Note that `docker-compose.yml` currently orchestrates the three domain services and their databases; the API Gateway is not yet included and should be run separately (see [Running a Single Service Locally](#running-a-single-service-locally)) until it's added to this file.
 
 ```bash
 docker compose up --build
@@ -191,25 +309,41 @@ docker compose up --build
 
 ### Running a Single Service Locally
 
-Each service can also be run independently without Docker, provided a matching PostgreSQL instance is available (see [Environment Variables](#environment-variables)):
+Each backend service can also be run independently without Docker, provided a matching PostgreSQL instance is available (see [Environment Variables](#environment-variables)):
 
 ```bash
 cd services/identity-service
 ./mvnw spring-boot:run
 ```
 
+The same applies to `gateway/api-gateway`, `services/vehicle-service`, and `services/appointment-service`.
+
+### Running the Frontend Locally
+
+```bash
+cd frontend/web
+npm install
+npm run dev
+```
+
+The app runs on `http://localhost:3000` by default and expects `NEXT_PUBLIC_API_URL` to point at the API Gateway (see [Environment Variables](#environment-variables)).
+
 ### Service Ports
 
 | Service | Container Port | Host Port |
 |---|---|---|
+| api-gateway | 8080 | 8080 |
 | vehicle-service | 8080 | 8081 |
 | appointment-service | 8080 | 8082 |
 | identity-service | 8080 | 8083 |
+| frontend (web) | 3000 | 3000 |
 | vehicle-db | 5432 | 5433 |
 | appointment-db | 5432 | 5434 |
 | identity-db | 5432 | 5435 |
 
 ## Environment Variables
+
+### Backend services
 
 Each service reads its database configuration from environment variables, falling back to local defaults when unset (see each service's `application.properties`).
 
@@ -218,14 +352,65 @@ Each service reads its database configuration from environment variables, fallin
 | `DB_URL` | JDBC connection URL | `jdbc:postgresql://localhost:5435/identity_db` |
 | `DB_USERNAME` | Database username | `postgres` |
 | `DB_PASSWORD` | Database password | `postgres` |
+| `JWT_SECRET` | Shared secret used to sign/verify JWTs (Identity Service and API Gateway) | *(required, no default)* |
 
-> Defaults are intended for local development only. Override all three variables with secure values in any shared or production environment.
+### API Gateway
+
+| Variable | Description |
+|---|---|
+| `JWT_SECRET` | Must match the Identity Service's signing secret |
+| `IDENTITY_URL` | Base URL of the Identity Service |
+| `VEHICLE_URL` | Base URL of the Vehicle Service |
+| `APPOINTMENT_URL` | Base URL of the Appointment Service |
+| `CLIENT_URL` | Allowed CORS origin for the frontend |
+
+### Appointment Service (inter-service calls)
+
+| Variable | Description |
+|---|---|
+| `VEHICLE_URL` | Base URL used by `VehicleClient` to fetch vehicle details |
+| `IDENTITY_URL` | Base URL used by `CustomerClient` to fetch customer details |
+
+### Frontend
+
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | Base URL of the API Gateway that the browser calls |
+
+> Defaults are intended for local development only. Override all secrets and URLs with secure values in any shared or production environment.
 
 ## API Reference
 
-### Identity Service — `POST /api/users`
+All endpoints below are reached through the API Gateway; paths shown are relative to the gateway's base URL.
 
-Creates a new user account.
+### Identity Service
+
+#### `POST /api/auth/login`
+
+Authenticates a user and sets the `access_token` cookie.
+
+**Request body:**
+
+```json
+{
+  "email": "jane.doe@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Success response — `200 OK`** (with `Set-Cookie: access_token=...`):
+
+```json
+{ "success": true }
+```
+
+#### `POST /api/auth/logout`
+
+Clears the `access_token` cookie. Requires an authenticated session.
+
+#### `POST /api/users`
+
+Creates a new user account. Public.
 
 **Request body:**
 
@@ -259,55 +444,90 @@ Creates a new user account.
 **Error response — `409 Conflict` (duplicate email):**
 
 ```json
-{
-  "success": false,
-  "message": "Email adresi zaten var"
-}
+{ "success": false, "message": "Email adresi zaten var" }
 ```
 
 **Error response — `400 Bad Request` (validation failure):**
 
 ```json
-{
-  "success": false,
-  "message": "email: must not be blank, password: must not be blank"
-}
+{ "success": false, "message": "email: must not be blank, password: must not be blank" }
 ```
 
-**Error response — `500 Internal Server Error` (unexpected failure):**
+#### Other Identity Service endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/users/me` | Returns the currently authenticated user (via `X-User-Id`) |
+| `GET` | `/api/users/{id}` | Returns a user by id |
+| `GET` | `/api/users` | Lists users (caller role required) |
+| `PATCH` | `/api/users/{id}` | Updates a user's profile fields |
+| `PATCH` | `/api/users/{id}/status` | Activates/deactivates a user |
+| `DELETE` | `/api/users/{id}` | Deletes a user |
+
+### Vehicle Service
+
+| Method | Path | Access | Description |
+|---|---|---|---|
+| `POST` | `/api/vehicles` | `ADMIN` | Creates a vehicle |
+| `GET` | `/api/vehicles` | Any authenticated caller | Lists all vehicles |
+| `GET` | `/api/vehicles/{id}` | Any authenticated caller | Fetches a vehicle by id |
+| `PATCH` | `/api/vehicles/{id}` | `ADMIN` | Updates vehicle fields |
+| `PATCH` | `/api/vehicles/{id}/status` | `ADMIN` | Updates availability status (`AVAILABLE` / `OUT_OF_SERVICE`) |
+| `PATCH` | `/api/vehicles/{id}/km-location` | Any authenticated caller | Updates mileage and/or location |
+| `DELETE` | `/api/vehicles/{id}` | `ADMIN` | Deletes a vehicle |
+
+### Appointment Service
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/appointments` | Creates an appointment; rejects with `409 Conflict` on a real date/time overlap for the same vehicle |
+| `GET` | `/appointments` | Lists all appointments, optionally filtered by `status` |
+| `GET` | `/appointments/{id}` | Fetches a single appointment, enriched with vehicle and customer data |
+| `GET` | `/appointments/me` | Lists the caller's own appointments (via `X-User-Id`) |
+| `GET` | `/appointments/vehicle/{vehicleId}/busy` | Lists non-cancelled appointments for a vehicle |
+| `GET` | `/appointments/busy-vehicles` | Lists vehicles busy for a given date/hour range |
+| `GET` | `/appointments/availability` | Returns day/hour availability for a date range |
+| `PATCH` | `/appointments/{id}` | Updates status (`PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`); accepts an optional `rejectNote` when cancelling |
+| `DELETE` | `/appointments/{id}` | Deletes an appointment |
+
+**Example — creating an appointment:**
 
 ```json
 {
-  "success": false,
-  "message": "Beklenmeyen bir hata oluştu"
+  "dateStart": "2026-09-01",
+  "dateEnd": "2026-09-01",
+  "hourStart": "09:00:00",
+  "hourEnd": "10:00:00",
+  "vehicleId": 3,
+  "customerId": 1,
+  "purpose": "Periodic maintenance"
 }
 ```
 
-Additional endpoints (vehicle management, appointment scheduling, authentication, user update/retrieval) are planned but not yet implemented.
+**Conflict response — `409 Conflict`:**
+
+```json
+{ "success": true, "message": "Bu arac, secilen tarih araliginda baska bir randevuya sahip" }
+```
 
 ## Roadmap
 
-- [x] Identity service — user creation, password hashing, duplicate-email handling
-- [x] Global exception handling with a standardized response envelope
-- [x] Basic Spring Security configuration
-- [ ] Authentication (login, JWT/session issuance)
-- [ ] User retrieval and update endpoints
-- [ ] Vehicle service domain model and endpoints
-- [ ] Appointment service domain model and endpoints
-- [ ] API Gateway implementation
-- [ ] Frontend application
-- [ ] Redis integration (caching / session storage)
-- [ ] Inter-service communication and service discovery
+- [x] Identity service — user CRUD, authentication (JWT cookie), role-based access, password hashing
+- [x] Vehicle service — CRUD, availability status, km/location updates, role-gated writes
+- [x] Appointment service — scheduling, overlap detection, availability lookup, status workflow
+- [x] API Gateway — routing, JWT validation, header propagation, CORS
+- [x] Frontend application — login, admin/employee dashboards, vehicle & employee management, appointment booking flow
 
 ## Contributing
 
-- Follow the existing package structure (`controller`, `service`, `repository`, `mapper`, `entity`, `dto`, `exception`, `config`) when adding features to a service
+- Follow the existing package structure (`controller`, `service`, `repository`, `mapper`/`component`, `entity`, `dto`, `exception`, `config`) when adding features to a backend service
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (`feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`)
 - Keep API responses wrapped in the shared `ApiResponse<T>` envelope for consistency across services
 - Add new exception types to each service's `GlobalExceptionHandler` rather than handling errors inline in controllers
+- On the frontend, add new server state through an RTK Query API slice under `store/api/`, and keep shared types in sync with backend DTOs under `types/`
 
 ## License
 
->This project is proprietary and intended for internal use at Yaltes only. Unauthorized copying, distribution, or use of this software outside the organization is not permitted.
+> This project is proprietary and intended for internal use at Yaltes only. Unauthorized copying, distribution, or use of this software outside the organization is not permitted.
 
 © 2026 Yaltes. All rights reserved.
