@@ -6,10 +6,14 @@ import { UserRole } from "@/types/user";
 import { SetStateAction } from "react";
 
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
 import dayjs from "dayjs";
 import { usePathname, useRouter } from "next/navigation";
 
 dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 
 const TableData = ({
   text,
@@ -46,7 +50,7 @@ const AppointmentTableBody = ({
   const canComplete =
     appointment.status === AppointmentStatus.CONFIRMED &&
     dayjs().isSameOrAfter(dayjs(appointment.dateStart), "day") &&
-    dayjs().isBefore(dayjs(appointment.dateEnd), "day");
+    dayjs().isSameOrBefore(dayjs(appointment.dateEnd), "day");
 
   return (
     <tr
@@ -104,7 +108,7 @@ const AppointmentTableBody = ({
 
           <CustomButton
             text="Randevuyu Bitir"
-            className={`bg-background! border border-input hover:bg-accent! hover:text-accent-foreground! text-foreground! w-max h-8! shadow-sm! text-xs font-semibold flex-1 ${!canComplete ? "bg-gray-400! text-white! pointer-events-none" : ""}`}
+            className={`bg-background! border border-input hover:bg-accent! hover:text-accent-foreground! text-foreground! w-max h-8! shadow-sm! text-xs font-semibold flex-1 ${!canComplete ? "opacity-50! bg-gray-400! text-white! pointer-events-none!" : ""}`}
             handleClick={() => {
               router.replace(
                 `${pathname.startsWith("/appointments") ? "/appointments" : ""}?long=${appointment.vehicle.id}&vehicle=${appointment.vehicle.brand} ${appointment.vehicle.model}&plate=${appointment.vehicle.plate}&dateEnd=${appointment.dateEnd}&hourEnd=${appointment.hourEnd}`,

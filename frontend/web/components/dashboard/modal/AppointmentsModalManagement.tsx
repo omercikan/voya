@@ -36,7 +36,7 @@ const AppointmentsModalManagement = ({
   const dispatch = useDispatch<AppDispatch>();
   const searchParams = useSearchParams();
   const [locationNote, setLocationNote] = useState("");
-  const [kmNote, setKmNote] = useState(0);
+  const [kmNote, setKmNote] = useState("");
 
   const {
     employeeDeleteAppointment: { handleDelete, isLoadingDeleteAppointment },
@@ -158,7 +158,7 @@ const AppointmentsModalManagement = ({
             handleUpdateVehicleKmAndLocation(
               deleteAppointmentInfo.appointmentId,
               Number(searchParams.get("long")),
-              kmNote,
+              Number(kmNote),
               locationNote,
             )
           }
@@ -172,10 +172,10 @@ const AppointmentsModalManagement = ({
           />
 
           <CustomInput
-            type="number"
-            min={0}
+            type="text"
+            // min={0}
             value={kmNote}
-            onChange={(e) => setKmNote(Number(e.target.value))}
+            onChange={(e) => setKmNote(e.target.value)}
             label="KM kaçta bıraktınız?"
             placeholder="Örneğin: 100.000"
           />
