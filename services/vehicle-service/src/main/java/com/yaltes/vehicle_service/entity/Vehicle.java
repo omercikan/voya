@@ -9,7 +9,7 @@ public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @Column(nullable = false, unique = true,name = "plate")
     private String plate;
     @Column(nullable = false,name = "brand")
@@ -32,7 +32,7 @@ public class Vehicle {
 
     // Constructors
     public Vehicle(){}
-    public Vehicle(Integer id, String plate, String brand,String model ,Integer year,
+    public Vehicle(Long id, String plate, String brand,String model ,Integer year,
                    String gear, String fuel, Integer km ,String location) {
         this.id = id;
         this.plate = plate;
@@ -46,7 +46,7 @@ public class Vehicle {
     }
 
     // Getter-Setter
-    public Integer getId() { return id; }
+    public Long getId() { return id; }
 
     public String getPlate() { return plate; }
     public void setPlate(String plate) { this.plate = plate; }
