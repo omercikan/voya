@@ -4,7 +4,7 @@ import com.yaltes.vehicle_service.enums.AvailabilityStatus;
 
 public class VehicleResponse{
 
-    private Integer id;
+    private Long id;
     private String plate;
     private String brand;
     private String model;
@@ -17,8 +17,8 @@ public class VehicleResponse{
 
     // Getter-Setter
 
-    public Integer getId() {return id;}
-    public void setId(Integer id) {this.id = id;}
+    public Long getId() {return id;}
+    public void setId(Long id) {this.id = id;}
 
     public String getPlate() {return plate;}
     public void setPlate(String plate) {this.plate = plate;}
