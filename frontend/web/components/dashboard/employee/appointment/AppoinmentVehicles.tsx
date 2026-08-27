@@ -7,6 +7,7 @@ import { RiSpeedUpLine } from "react-icons/ri";
 import AppointmentActions from "./AppointmentActions";
 import { setAppointment, setVehicle } from "@/store/slices/appointmentSlice";
 import { IoLocationOutline } from "react-icons/io5";
+import { VehicleStatus } from "@/types/vehicle";
 
 const AppoinmentVehicles = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,48 +40,54 @@ const AppoinmentVehicles = () => {
 
       <div className="px-6">
         <div className="grid gap-3 md:grid-cols-2">
-          {vehicles?.map((vehicle) => (
-            <button
-              key={vehicle.id}
-              className={`rounded-md cursor-pointer border p-4 text-left transition-colors ${appointment.vehicleId === String(vehicle.id) ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/60"}`}
-              onClick={() => handleSelectVehicle(String(vehicle.id))}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <strong className="font-display font-bold">
-                    {vehicle.brand} {vehicle.model}
-                  </strong>
+          {vehicles
+            ?.filter(
+              (vehicle) => vehicle.status !== VehicleStatus.OUT_OF_SERVICE,
+            )
+            ?.map((vehicle) => (
+              <button
+                key={vehicle.id}
+                className={`rounded-md cursor-pointer border p-4 text-left transition-colors ${appointment.vehicleId === String(vehicle.id) ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/60"}`}
+                onClick={() => handleSelectVehicle(String(vehicle.id))}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <strong className="font-display font-bold">
+                      {vehicle.brand} {vehicle.model}
+                    </strong>
 
-                  <span className="text-sm text-muted-foreground block">
-                    {vehicle.plate}
+                    <span className="text-sm text-muted-foreground block">
+                      {vehicle.plate}
+                    </span>
+                  </div>
+
+                  <div className="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-0.5 text-[11px] font-semibold tracking-wide bg-success/12 text-success border-success/40">
+                    {vehicle.status}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <LuFuel />
+                    <span>{vehicle.fuel}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <CgOptions />
+                    <span>{vehicle.gear}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <RiSpeedUpLine />
+                    <span>
+                      {new Intl.NumberFormat().format(vehicle.km)} km/h
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <IoLocationOutline />
+                    <span>{vehicle.location}</span>
                   </span>
                 </div>
-
-                <div className="inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-2 py-0.5 text-[11px] font-semibold tracking-wide bg-success/12 text-success border-success/40">
-                  {vehicle.status}
-                </div>
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <LuFuel />
-                  <span>{vehicle.fuel}</span>
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CgOptions />
-                  <span>{vehicle.gear}</span>
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <RiSpeedUpLine />
-                  <span>{new Intl.NumberFormat().format(vehicle.km)} km/h</span>
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <IoLocationOutline />
-                  <span>{vehicle.location}</span>
-                </span>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
         </div>
 
         <AppointmentActions isError={appointment.vehicleId === ""} />
