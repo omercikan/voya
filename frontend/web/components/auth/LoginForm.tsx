@@ -8,6 +8,9 @@ import { LoginRequest } from "@/types/auth";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "@/utils/error";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/store";
+import { baseApi } from "@/store/api/baseApi";
 
 const LoginForm = () => {
   const {
@@ -21,12 +24,14 @@ const LoginForm = () => {
 
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const onSubmit: SubmitHandler<LoginRequest> = async (values) => {
     try {
       const loginResponse = await login(values).unwrap();
 
       if (loginResponse.success) {
+        dispatch(baseApi.util.resetApiState());
         router.replace("/dashboard");
       }
     } catch (error) {

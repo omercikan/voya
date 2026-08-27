@@ -1,6 +1,7 @@
 import CustomButton from "@/components/ui/CustomButton";
 import useAuth from "@/hooks/useAuth";
 import { useLogoutMutation } from "@/store/api/authApi";
+import { baseApi } from "@/store/api/baseApi";
 import { resetAppointment } from "@/store/slices/appointmentSlice";
 import { resetLink } from "@/store/slices/linkSlice";
 import { AppDispatch } from "@/store/store";
@@ -19,6 +20,7 @@ const LogoutButton = () => {
   const handleLogout = async () => {
     try {
       await logout().unwrap();
+      dispatch(baseApi.util.resetApiState());
       router.replace("/login");
       dispatch(resetAppointment());
       dispatch(resetLink());
