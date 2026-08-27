@@ -2,7 +2,11 @@
 
 import CustomButton from "@/components/ui/CustomButton";
 import Table from "@/components/ui/Table";
-import { useGetUsersQuery, useUpdateStatusMutation } from "@/store/api/userApi";
+import {
+  useDeleteUserMutation,
+  useGetUsersQuery,
+  useUpdateStatusMutation,
+} from "@/store/api/userApi";
 import { AccountStatus } from "@/types/user";
 
 const tableTheads = [
@@ -49,6 +53,7 @@ const TableData = ({
 const EmployeesPage = () => {
   const { data: users } = useGetUsersQuery();
   const [updateStatus] = useUpdateStatusMutation();
+  const [deleteUser] = useDeleteUserMutation();
 
   return (
     <Table theads={tableTheads} theadTrClassName="grid-cols-6 gap-12">
@@ -75,24 +80,33 @@ const EmployeesPage = () => {
           />
 
           <td className="self-center">
-            <CustomButton
-              circularColor="#000"
-              className="border border-input bg-background! shadow-sm! hover:bg-accent! font-bold! text-foreground! hover:text-accent-foreground! h-8! px-3! text-xs w-28.5!"
-              handleClick={() =>
-                updateStatus({
-                  userId: user.id,
-                  status:
-                    user.status === AccountStatus.ACTIVE
-                      ? AccountStatus.INACTIVE
-                      : AccountStatus.ACTIVE,
-                })
-              }
-              text={
-                user.status == AccountStatus.ACTIVE
-                  ? "Devre dışı bırak"
-                  : "Etkinleştir"
-              }
-            />
+            <div className="flex max-xl:flex-wrap gap-x-3 gap-y-1">
+              <CustomButton
+                circularColor="#000"
+                className="border border-input bg-background! shadow-sm! hover:bg-accent! font-bold! text-foreground! hover:text-accent-foreground! h-8! px-3! text-xs flex-1"
+                handleClick={() =>
+                  updateStatus({
+                    userId: user.id,
+                    status:
+                      user.status === AccountStatus.ACTIVE
+                        ? AccountStatus.INACTIVE
+                        : AccountStatus.ACTIVE,
+                  })
+                }
+                text={
+                  user.status == AccountStatus.ACTIVE
+                    ? "Devre dışı bırak"
+                    : "Etkinleştir"
+                }
+              />
+
+              <CustomButton
+                circularColor="#000"
+                className="border border-destructive/50 bg-destructive! shadow-sm! hover:bg-destructive/90! font-bold! text-destructive-foreground! h-8! px-3! text-xs flex-1"
+                text="Sil"
+                handleClick={() => deleteUser(user.id)}
+              />
+            </div>
           </td>
         </tr>
       ))}
