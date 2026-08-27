@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import AppointmentActions from "./AppointmentActions";
 import Table from "@/components/ui/Table";
-import { hourSlots, slots } from "@/constants/hourSlots";
+import { slots } from "@/constants/hourSlots";
 import CustomButton from "@/components/ui/CustomButton";
 import { setAppointment } from "@/store/slices/appointmentSlice";
 
@@ -49,29 +49,26 @@ const AppointmentSelectTime = () => {
         <Table
           theadTrClassName={isSameDate ? "grid-cols-1" : "grid-cols-2"}
           theads={[
-            `${appointment.dateStart.toUpperCase()} · BAŞLANGIÇ`,
+            `${appointment.dateStart.toUpperCase()} · BAŞLANGIÇ - BİTİŞ`,
             isSameDate ? "" : `${appointment.dateEnd.toUpperCase()} · BİTİŞ`,
           ]}
         >
           {isSameDate
-            ? hourSlots.map((slot, index) => (
+            ? slots.map((slot, index) => (
                 <tr
                   key={index}
                   className="grid grid-cols-1 not-last:border-b border-border"
                 >
                   <td className="px-2 py-1.5">
                     <CustomButton
-                      text={`${slot.start} - ${slot.end}`}
+                      text={slot}
                       className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
-                        appointment.hourStart ===
-                          `${slot.start} - ${slot.end}` ||
-                        appointment.hourEnd === `${slot.start} - ${slot.end}`
+                        appointment.hourStart === `${slot}` ||
+                        appointment.hourEnd === `${slot}`
                           ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
                           : ""
                       }`}
-                      handleClick={() =>
-                        handleSelectStartTime(`${slot.start} - ${slot.end}`)
-                      }
+                      handleClick={() => handleSelectStartTime(`${slot}`)}
                     />
                   </td>
                 </tr>
