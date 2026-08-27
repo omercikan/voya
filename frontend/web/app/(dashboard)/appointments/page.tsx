@@ -5,6 +5,7 @@ import AppointmentTableBodyEmployee from "@/components/dashboard/employee/appoin
 import Header from "@/components/dashboard/Header";
 import AppointmentsModalManagement from "@/components/dashboard/modal/AppointmentsModalManagement";
 import Table from "@/components/ui/Table";
+import EmptyState from "@/components/ui/EmptyState";
 import useAuth from "@/hooks/useAuth";
 import {
   useGetAppointmentMeQuery,
@@ -12,6 +13,8 @@ import {
 } from "@/store/api/appointmentApi";
 import { UserRole } from "@/types/user";
 import { useState } from "react";
+import { LuCalendarX } from "react-icons/lu";
+import { redirect } from "next/navigation";
 
 const tableTheadsEmployee = [
   "Araç",
@@ -44,46 +47,69 @@ export default function AppointmentsPage() {
     type: "",
   });
 
+  const isEmployee = user?.role === UserRole.EMPLOYEE;
+  const isEmpty = isEmployee
+    ? (appointments?.length ?? 0) === 0
+    : (allAppointments?.length ?? 0) === 0;
+
   return (
     <>
       <Header
-        title={
-          user?.role === UserRole.EMPLOYEE
-            ? "Randevularım"
-            : "Randevuları Yönetin"
-        }
+        title={isEmployee ? "Randevularım" : "Randevuları Yönetin"}
         description={
-          user?.role === UserRole.EMPLOYEE
+          isEmployee
             ? "Oluşturduğunuz tüm randevu talepleri."
             : "Çalışanların taleplerini inceleyin ve araç kullanımına ilişkin karar verin."
         }
       />
 
       <Table
-        theadTrClassName={`${user?.role === UserRole.EMPLOYEE ? "grid-cols-7" : "grid-cols-8"} gap-12`}
-        theads={
-          user?.role === UserRole.EMPLOYEE
-            ? tableTheadsEmployee
-            : tableTheadsAdmin
-        }
+        theadTrClassName={`${isEmployee ? "grid-cols-7" : "grid-cols-8"} gap-12`}
+        theads={isEmployee ? tableTheadsEmployee : tableTheadsAdmin}
       >
-        {user?.role === UserRole.EMPLOYEE &&
-          appointments?.map((appointment) => (
-            <AppointmentTableBodyEmployee
-              key={appointment.id}
-              appointment={appointment}
-              setDeleteAppointmentInfo={setDeleteAppointmentInfo}
-            />
-          ))}
+        {isEmpty ? (
+          <tr>
+            <td colSpan={isEmployee ? 7 : 8}>
+              <EmptyState
+                icon={LuCalendarX}
+                title={
+                  isEmployee
+                    ? "Henüz randevunuz yok"
+                    : "Bekleyen randevu bulunmuyor"
+                }
+                description={
+                  isEmployee
+                    ? "Yeni bir randevu oluşturarak başlayabilirsiniz."
+                    : "Çalışanlar randevu talebi oluşturduğunda burada listelenecek."
+                }
+                actionText={isEmployee ? "Yeni Randevu" : undefined}
+                onAction={
+                  isEmployee ? () => redirect("/appointments/new") : undefined
+                }
+              />
+            </td>
+          </tr>
+        ) : (
+          <>
+            {isEmployee &&
+              appointments?.map((appointment) => (
+                <AppointmentTableBodyEmployee
+                  key={appointment.id}
+                  appointment={appointment}
+                  setDeleteAppointmentInfo={setDeleteAppointmentInfo}
+                />
+              ))}
 
-        {user?.role === UserRole.ADMIN &&
-          allAppointments?.map((appointment) => (
-            <AppointmentTableBodyAdmin
-              key={appointment.id}
-              appointment={appointment}
-              setDeleteAppointmentInfo={setDeleteAppointmentInfo}
-            />
-          ))}
+            {!isEmployee &&
+              allAppointments?.map((appointment) => (
+                <AppointmentTableBodyAdmin
+                  key={appointment.id}
+                  appointment={appointment}
+                  setDeleteAppointmentInfo={setDeleteAppointmentInfo}
+                />
+              ))}
+          </>
+        )}
       </Table>
 
       <AppointmentsModalManagement
