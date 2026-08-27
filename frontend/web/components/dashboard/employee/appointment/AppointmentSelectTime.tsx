@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import AppointmentActions from "./AppointmentActions";
 import Table from "@/components/ui/Table";
-import { hourSlots } from "@/constants/hourSlots";
+import { hourSlots, slots } from "@/constants/hourSlots";
 import CustomButton from "@/components/ui/CustomButton";
 import { setAppointment } from "@/store/slices/appointmentSlice";
 
@@ -53,48 +53,59 @@ const AppointmentSelectTime = () => {
             isSameDate ? "" : `${appointment.dateEnd.toUpperCase()} · BİTİŞ`,
           ]}
         >
-          {hourSlots.map((slot, index) => (
-            <tr
-              key={index}
-              className={`grid ${isSameDate ? "grid-cols-1" : "grid-cols-2"} not-last:border-b border-border`}
-            >
-              <td className="px-2 py-1.5">
-                <CustomButton
-                  text={isSameDate ? `${slot.start} - ${slot.end}` : slot.start}
-                  className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
-                    isSameDate
-                      ? appointment.hourStart ===
+          {isSameDate
+            ? hourSlots.map((slot, index) => (
+                <tr
+                  key={index}
+                  className="grid grid-cols-1 not-last:border-b border-border"
+                >
+                  <td className="px-2 py-1.5">
+                    <CustomButton
+                      text={`${slot.start} - ${slot.end}`}
+                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
+                        appointment.hourStart ===
                           `${slot.start} - ${slot.end}` ||
                         appointment.hourEnd === `${slot.start} - ${slot.end}`
-                        ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
-                        : ""
-                      : appointment.hourStart === slot.start
-                        ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
-                        : ""
-                  } ${isSameDate ? (appointment.hourStart.length > 0 && appointment.hourEnd === `${slot.start} - ${slot.end}` ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!" : "") : ""}`}
-                  handleClick={() =>
-                    handleSelectStartTime(
-                      isSameDate ? `${slot.start} - ${slot.end}` : slot.start,
-                    )
-                  }
-                />
-              </td>
+                          ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
+                          : ""
+                      }`}
+                      handleClick={() =>
+                        handleSelectStartTime(`${slot.start} - ${slot.end}`)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))
+            : slots.map((time, index) => (
+                <tr
+                  key={index}
+                  className="grid grid-cols-2 not-last:border-b border-border"
+                >
+                  <td className="px-2 py-1.5">
+                    <CustomButton
+                      text={time}
+                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
+                        appointment.hourStart === time
+                          ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
+                          : ""
+                      }`}
+                      handleClick={() => handleSelectStartTime(time)}
+                    />
+                  </td>
 
-              {!isSameDate && (
-                <td className="px-2 py-1.5">
-                  <CustomButton
-                    text={slot.end}
-                    className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
-                      appointment.hourEnd === slot.end
-                        ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
-                        : ""
-                    }`}
-                    handleClick={() => handleSelectEndTime(slot.end)}
-                  />
-                </td>
-              )}
-            </tr>
-          ))}
+                  <td className="px-2 py-1.5">
+                    <CustomButton
+                      text={time}
+                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
+                        appointment.hourEnd === time
+                          ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
+                          : ""
+                      }`}
+                      handleClick={() => handleSelectEndTime(time)}
+                    />
+                  </td>
+                </tr>
+              ))}
         </Table>
 
         <AppointmentActions
