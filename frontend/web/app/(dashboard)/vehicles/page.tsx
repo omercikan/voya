@@ -20,7 +20,6 @@ const tableTheads = [
   "KM",
   "Lokasyon",
   "Durum",
-  "Eylemler",
 ];
 
 const TableData = ({
@@ -58,7 +57,7 @@ const VehiclesPage = () => {
 
   return (
     <Table
-      theads={tableTheads.filter((th) => !isAdmin && !th.includes("Eylemler"))}
+      theads={isAdmin ? tableTheads.concat("Eylemler") : tableTheads}
       theadTrClassName={`${isAdmin ? "grid-cols-10" : "grid-cols-9"} gap-8`}
     >
       {vehicles?.map((vehicle) => (
