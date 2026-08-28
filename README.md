@@ -38,6 +38,7 @@ A microservices-based system for managing vehicle records and service appointmen
   - [Running a Single Service Locally](#running-a-single-service-locally)
   - [Running the Frontend Locally](#running-the-frontend-locally)
 - [Environment Variables](#environment-variables)
+- [Production Deployment](#production-deployment)
 - [API Reference](#api-reference)
   - [Identity Service](#identity-service-1)
   - [Vehicle Service](#vehicle-service-1)
@@ -355,6 +356,14 @@ Each service reads its database configuration from environment variables, fallin
 | `DB_PASSWORD` | Database password | `postgres` |
 | `JWT_SECRET` | Shared secret used to sign/verify JWTs (Identity Service and API Gateway) | *(required, no default)* |
 
+### Identity Service (auth cookie)
+
+| Variable | Description | Default |
+|---|---|---|
+| `COOKIE_SECURE` | Whether the `access_token` cookie is issued with the `Secure` flag (requires HTTPS to be stored by the browser) | `true` |
+
+> `COOKIE_SECURE=false` exists only to allow login testing over plain HTTP (e.g. from another device on a LAN, using an IP address instead of a domain). See [Production Deployment](#production-deployment) — this must be `true` (or simply unset) whenever the app is reachable over HTTPS.
+
 ### API Gateway
 
 | Variable | Description |
@@ -379,6 +388,78 @@ Each service reads its database configuration from environment variables, fallin
 | `NEXT_PUBLIC_API_URL` | Base URL of the API Gateway that the browser calls |
 
 > Defaults are intended for local development only. Override all secrets and URLs with secure values in any shared or production environment.
+
+## Production Deployment
+
+The `.env` values and frontend settings used for local development or same-LAN testing (e.g. testing from a second device over `http://192.168.x.x`) are **not safe or correct for a real deployment**. Before shipping this project to a staging or production environment, go through the checklist below.
+
+### 1. `.env` — update every value that pointed at a LAN IP or used relaxed security
+
+```dotenv
+# Example LAN/dev .env — do NOT use these values in production
+JWT_SECRET=5CFvJsQDP7fq470nLEXbE0TfXt2E7gO6+5Gm58BIaCQ=
+IDENTITY_URL=http://identity-service:8080
+VEHICLE_URL=http://vehicle-service:8080
+APPOINTMENT_URL=http://appointment-service:8080
+CLIENT_URL=http://192.168.1.100:3000
+COOKIE_SECURE=false
+```
+
+| Variable | What to change for production |
+|---|---|
+| `JWT_SECRET` | Generate a **new**, unique, high-entropy secret for the production environment (e.g. `openssl rand -base64 32`). Never reuse a secret that was ever used in a dev/LAN `.env` or committed to version control. Store it in your platform's secret manager (not a plain `.env` file on disk). |
+| `IDENTITY_URL` / `VEHICLE_URL` / `APPOINTMENT_URL` | These stay as internal Docker service names (e.g. `http://identity-service:8080`) as long as all backend services run on the same Docker network — no change needed unless services are deployed on separate hosts/clusters, in which case use their internal DNS names or private network addresses. |
+| `CLIENT_URL` | Must be the **real public HTTPS origin** of the deployed frontend, e.g. `https://app.yourdomain.com` — not an IP address and not `http://`. If the frontend is reachable at more than one origin (e.g. `https://app.yourdomain.com` and `https://www.yourdomain.com`), see the CORS note below, since the current `CorsConfig` only accepts a single origin string. |
+| `COOKIE_SECURE` | Set to `true`, or remove it entirely (the Identity Service already defaults to `true` when unset). This flag exists only to disable the `Secure` cookie attribute for HTTP-based LAN testing; leaving it `false` in production means the session cookie could be sent over an unencrypted connection. |
+
+### 2. `frontend/web/next.config.ts` — `allowedDevOrigins`
+
+```typescript
+const nextConfig: NextConfig = {
+  allowedDevOrigins: ["192.168.1.100"],
+};
+```
+
+`allowedDevOrigins` is a **development-only** safety setting used exclusively by `next dev` to allow a specific LAN IP to load the dev server's hot-reload/HMR assets. It has no effect on `next build` / `next start` or on a production deployment, so it is safe to leave in the repo — but it should be removed or updated once the LAN IP it references is no longer relevant, so the config doesn't silently reference stale internal addresses:
+
+```typescript
+const nextConfig: NextConfig = {
+  /* config options here */
+};
+```
+
+### 3. Rebuild the frontend with the production API URL
+
+`NEXT_PUBLIC_*` environment variables are baked into the JavaScript bundle **at build time**, not read at runtime. Set the real gateway URL before building:
+
+```dotenv
+# frontend/web/.env.production
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+```
+
+```bash
+cd frontend/web
+npm run build
+npm run start
+```
+
+Simply changing the `.env` file without rebuilding (`npm run build`) will have no effect — the previous URL stays compiled into the existing `.next` output.
+
+### 4. Serve everything over HTTPS
+
+Because `COOKIE_SECURE=true` and the cookie is issued with `SameSite=Strict`, the browser will only store and send the `access_token` cookie when both the frontend and the API Gateway are served over **HTTPS on real domains** (not bare IP addresses). In practice this means putting a reverse proxy or load balancer (e.g. Nginx, Caddy, Traefik, or a cloud load balancer) in front of the frontend and the API Gateway to terminate TLS, using certificates from a CA such as Let's Encrypt.
+
+### 5. Add the API Gateway and its secrets to `docker-compose.yml`
+
+The current `docker-compose.yml` only orchestrates the three domain services and their databases (see the [Roadmap](#roadmap)) — it does not yet start `api-gateway`, and none of the domain services receive `JWT_SECRET`, `CLIENT_URL`, or `COOKIE_SECURE`. Before deploying with `docker compose up --build`, add an `api-gateway` service (mirroring the one in `docker-compose.dev.yml`, minus the Maven hot-reload setup) and wire the required environment variables into it and into `identity-service`, sourced from your production `.env` or secret manager — not hardcoded in the compose file.
+
+### 6. Harden the database credentials
+
+Both compose files currently ship with `POSTGRES_USER=postgres` / `POSTGRES_PASSWORD=postgres` for every database. Replace these with strong, unique credentials per database before going live, and avoid exposing the database ports (`5433`–`5435`) publicly — they should only be reachable from within the Docker network.
+
+### 7. Double-check CORS for multiple frontend origins
+
+`CorsConfig` in the API Gateway currently accepts a single value for `allowedOrigins`. If production traffic can arrive from more than one origin (e.g. an apex domain and a `www` subdomain, or a staging environment sharing the same gateway), update `CorsConfig` to accept a comma-separated list from `CLIENT_URL` and split it into multiple allowed origins, rather than adding a second environment variable per origin.
 
 ## API Reference
 
