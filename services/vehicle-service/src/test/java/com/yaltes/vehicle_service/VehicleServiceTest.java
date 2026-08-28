@@ -53,14 +53,14 @@ class VehicleServiceTest {
         request.setYear(2020);
 
         entity = new Vehicle();
-        ReflectionTestUtils.setField(entity, "id", 1);
+        ReflectionTestUtils.setField(entity, "id", 1L);
         entity.setPlate("41ABO233");
         entity.setKm(50000);
         entity.setYear(2020);
         entity.setStatus(AvailabilityStatus.AVAILABLE);
 
         response = new VehicleResponse();
-        ReflectionTestUtils.setField(response, "id", 1);
+        ReflectionTestUtils.setField(response, "id", 1L);
         response.setPlate("41ABO233");
         response.setKm(50000);
         response.setYear(2020);
