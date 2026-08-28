@@ -118,10 +118,10 @@ public class VehicleService {
     // Kilometer can't be decreased (updateVehicle and updateKmAndLocation)
     private void validateKmNotDecreasing(Vehicle existing, VehicleRequest patchData) {
         if (patchData.getKm() != null && patchData.getKm() < existing.getKm()) {
-            throw new ValidationException(List.of(
+            throw new ValidationException(
                     "Kilometre azaltılamaz. Mevcut: " + existing.getKm() +
                             ", gönderilen: " + patchData.getKm()
-            ));
+            );
         }
     }
 }
