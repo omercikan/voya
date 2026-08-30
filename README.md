@@ -1,8 +1,13 @@
 <p align="center">
-  <img width="170" alt="yaltes_logo" src="https://github.com/user-attachments/assets/c00f397e-d54b-424c-9935-1846062d898e" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/11376b3b-64d3-4844-9c86-9dc687e0a951" />
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/11376b3b-64d3-4844-9c86-9dc687e0a951" />
+    <img width="350" alt="NextHire Logo" src="https://github.com/user-attachments/assets/11376b3b-64d3-4844-9c86-9dc687e0a951" />
+  </picture>
 </p>
 
-<h1 align="center">Yaltes Vehicle Appointment System</h1>
+
+<p align="center"><em>Vehicle Fleet &amp; Service Appointment Management System</em></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-26-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 26"/>
@@ -13,10 +18,12 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19"/>
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16"/>
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose"/>
-  <img src="https://img.shields.io/badge/License-Proprietary-lightgrey?style=for-the-badge" alt="License"/>
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge" alt="License"/>
 </p>
 
 A microservices-based system for managing vehicle records and service appointments, built with Spring Boot on the backend and Next.js on the frontend. The system is organized as independently deployable services, each owning its own database, and is exposed to clients through a single API gateway that also owns authentication.
+
+> This project started as a summer internship project built by three interns and is now open-sourced as a portfolio/learning project.
 
 ## Table of Contents
 
@@ -76,7 +83,7 @@ This repository hosts both the backend infrastructure and the web client for a v
                                    │  header injection   │
                                    └──────────┬──────────┘
                                               │
-        ┌───────────────────────────┬────────┴─────────────────────────┐
+        ┌───────────────────────────┬─────────┴────────────────────────┐
         │                           │                                  │
 ┌───────▼──────────┐      ┌─────────▼───────┐                ┌─────────▼───────────┐
 │ Identity Service │      │ Vehicle Service │                │ Appointment Service │
@@ -112,8 +119,8 @@ Each backend service is fully independent: its own codebase, its own database, i
 ## Project Structure
 
 ```
-yaltes-vehicle-appointment/
-├── docker-compose.yml              # Production-like orchestration (builds service images)
+voya/
+├── docker-compose.yml              # Production orchestration (builds service images)
 ├── docker-compose.dev.yml          # Development orchestration (hot-reload via Maven)
 ├── docs/                           # Project documentation
 ├── frontend/
@@ -130,7 +137,7 @@ yaltes-vehicle-appointment/
 
 ### API Gateway
 
-**Package:** `com.yaltes.api_gateway`
+**Package:** `com.voya.api_gateway`
 **Default port:** `8080`
 
 The single entry point for all client traffic. Built on Spring Cloud Gateway's WebMVC (functional routing) flavor.
@@ -150,7 +157,7 @@ The single entry point for all client traffic. Built on Spring Cloud Gateway's W
 
 Manages user accounts, roles, credentials, and authentication.
 
-**Package:** `com.yaltes.identity_service`
+**Package:** `com.voya.identity_service`
 **Default port:** `8080` (mapped to host port `8083`)
 
 **Implemented layers:**
@@ -181,7 +188,7 @@ Manages user accounts, roles, credentials, and authentication.
 
 Manages the fleet: registration, availability status, and odometer/location updates.
 
-**Package:** `com.yaltes.vehicle_service`
+**Package:** `com.voya.vehicle_service`
 **Default port:** `8080` (mapped to host port `8081`)
 
 **Implemented layers:**
@@ -209,7 +216,7 @@ Manages the fleet: registration, availability status, and odometer/location upda
 
 Manages scheduling: creating appointments, checking availability, and moving appointments through their status lifecycle.
 
-**Package:** `com.yaltes.appointment_service`
+**Package:** `com.voya.appointment_service`
 **Default port:** `8080` (mapped to host port `8082`)
 
 **Implemented layers:**
@@ -303,11 +310,13 @@ docker compose -f docker-compose.dev.yml down -v
 
 ### Running in Production Mode
 
-Production mode builds a standalone image for each backend service using its multi-stage `Dockerfile` (Maven build stage → lightweight JRE runtime stage). Note that `docker-compose.yml` currently orchestrates the three domain services and their databases; the API Gateway is not yet included and should be run separately (see [Running a Single Service Locally](#running-a-single-service-locally)) until it's added to this file.
+Production mode builds a standalone image for each backend service (including the API Gateway) using its multi-stage `Dockerfile` (Maven build stage → lightweight JRE runtime stage), and starts everything — databases, domain services, and the gateway — from a single compose file.
 
 ```bash
 docker compose up --build
 ```
+
+See [Production Deployment](#production-deployment) for what needs to change before this is actually safe to expose publicly.
 
 ### Running a Single Service Locally
 
@@ -339,9 +348,9 @@ The app runs on `http://localhost:3000` by default and expects `NEXT_PUBLIC_API_
 | appointment-service | 8080 | 8082 |
 | identity-service | 8080 | 8083 |
 | frontend (web) | 3000 | 3000 |
-| vehicle-db | 5432 | 5433 |
-| appointment-db | 5432 | 5434 |
-| identity-db | 5432 | 5435 |
+| vehicle-db | 5432 | internal only (prod) / 5433 (dev) |
+| appointment-db | 5432 | internal only (prod) / 5434 (dev) |
+| identity-db | 5432 | internal only (prod) / 5435 (dev) |
 
 ## Environment Variables
 
@@ -381,6 +390,14 @@ Each service reads its database configuration from environment variables, fallin
 | `VEHICLE_URL` | Base URL used by `VehicleClient` to fetch vehicle details |
 | `IDENTITY_URL` | Base URL used by `CustomerClient` to fetch customer details |
 
+### Database credentials (Docker Compose)
+
+| Variable | Description | Default |
+|---|---|---|
+| `VEHICLE_DB_NAME` / `VEHICLE_DB_USER` / `VEHICLE_DB_PASSWORD` | Vehicle Service database credentials | `vehicle_db` / `postgres` / *(required)* |
+| `APPOINTMENT_DB_NAME` / `APPOINTMENT_DB_USER` / `APPOINTMENT_DB_PASSWORD` | Appointment Service database credentials | `appointment_db` / `postgres` / *(required)* |
+| `IDENTITY_DB_NAME` / `IDENTITY_DB_USER` / `IDENTITY_DB_PASSWORD` | Identity Service database credentials | `identity_db` / `postgres` / *(required)* |
+
 ### Frontend
 
 | Variable | Description |
@@ -397,7 +414,7 @@ The `.env` values and frontend settings used for local development or same-LAN t
 
 ```dotenv
 # Example LAN/dev .env — do NOT use these values in production
-JWT_SECRET=5CFvJsQDP7fq470nLEXbE0TfXt2E7gO6+5Gm58BIaCQ=
+JWT_SECRET=change-me-to-a-real-secret
 IDENTITY_URL=http://identity-service:8080
 VEHICLE_URL=http://vehicle-service:8080
 APPOINTMENT_URL=http://appointment-service:8080
@@ -413,12 +430,6 @@ COOKIE_SECURE=false
 | `COOKIE_SECURE` | Set to `true`, or remove it entirely (the Identity Service already defaults to `true` when unset). This flag exists only to disable the `Secure` cookie attribute for HTTP-based LAN testing; leaving it `false` in production means the session cookie could be sent over an unencrypted connection. |
 
 ### 2. `frontend/web/next.config.ts` — `allowedDevOrigins`
-
-```typescript
-const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.1.100"],
-};
-```
 
 `allowedDevOrigins` is a **development-only** safety setting used exclusively by `next dev` to allow a specific LAN IP to load the dev server's hot-reload/HMR assets. It has no effect on `next build` / `next start` or on a production deployment, so it is safe to leave in the repo — but it should be removed or updated once the LAN IP it references is no longer relevant, so the config doesn't silently reference stale internal addresses:
 
@@ -449,15 +460,11 @@ Simply changing the `.env` file without rebuilding (`npm run build`) will have n
 
 Because `COOKIE_SECURE=true` and the cookie is issued with `SameSite=Strict`, the browser will only store and send the `access_token` cookie when both the frontend and the API Gateway are served over **HTTPS on real domains** (not bare IP addresses). In practice this means putting a reverse proxy or load balancer (e.g. Nginx, Caddy, Traefik, or a cloud load balancer) in front of the frontend and the API Gateway to terminate TLS, using certificates from a CA such as Let's Encrypt.
 
-### 5. Add the API Gateway and its secrets to `docker-compose.yml`
+### 5. Harden the database credentials
 
-The current `docker-compose.yml` only orchestrates the three domain services and their databases (see the [Roadmap](#roadmap)) — it does not yet start `api-gateway`, and none of the domain services receive `JWT_SECRET`, `CLIENT_URL`, or `COOKIE_SECURE`. Before deploying with `docker compose up --build`, add an `api-gateway` service (mirroring the one in `docker-compose.dev.yml`, minus the Maven hot-reload setup) and wire the required environment variables into it and into `identity-service`, sourced from your production `.env` or secret manager — not hardcoded in the compose file.
+`docker-compose.yml` requires `VEHICLE_DB_PASSWORD`, `APPOINTMENT_DB_PASSWORD`, and `IDENTITY_DB_PASSWORD` to be set (compose will refuse to start otherwise) — make sure each is a strong, unique value, not the shared `postgres` default used in development. Database ports are not published to the host in `docker-compose.yml`; they should only ever be reachable from within the Docker network.
 
-### 6. Harden the database credentials
-
-Both compose files currently ship with `POSTGRES_USER=postgres` / `POSTGRES_PASSWORD=postgres` for every database. Replace these with strong, unique credentials per database before going live, and avoid exposing the database ports (`5433`–`5435`) publicly — they should only be reachable from within the Docker network.
-
-### 7. Double-check CORS for multiple frontend origins
+### 6. Double-check CORS for multiple frontend origins
 
 `CorsConfig` in the API Gateway currently accepts a single value for `allowedOrigins`. If production traffic can arrive from more than one origin (e.g. an apex domain and a `www` subdomain, or a staging environment sharing the same gateway), update `CorsConfig` to accept a comma-separated list from `CLIENT_URL` and split it into multiple allowed origins, rather than adding a second environment variable per origin.
 
@@ -547,7 +554,7 @@ Creates a new user account. Public.
 | `DELETE` | `/api/users/{id}` | Deletes a user |
 
 ### Vehicle Service
- 
+
 | Method | Path | Access | Description |
 |---|---|---|---|
 | `POST` | `/api/vehicles` | `ADMIN` | Creates a vehicle |
@@ -557,13 +564,13 @@ Creates a new user account. Public.
 | `PATCH` | `/api/vehicles/{id}/status` | `ADMIN` | Updates availability status (`AVAILABLE` / `OUT_OF_SERVICE`) |
 | `PATCH` | `/api/vehicles/{id}/km-location` | Any authenticated caller | Updates mileage and/or location |
 | `DELETE` | `/api/vehicles/{id}` | `ADMIN` | Deletes a vehicle |
- 
+
 #### `POST /api/vehicles`
- 
+
 Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are normalized and validated before persistence (see [Key design decisions](#vehicle-service) above).
- 
+
 **Request body:**
- 
+
 ```json
 {
   "plate": "34ABC123",
@@ -576,9 +583,9 @@ Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are 
   "location": "Istanbul"
 }
 ```
- 
+
 **Success response — `201 Created`:**
- 
+
 ```json
 {
   "id": 1,
@@ -593,9 +600,9 @@ Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are 
   "status": "AVAILABLE"
 }
 ```
- 
+
 **Error response — `400 Bad Request`** (duplicate plate, invalid format, or any other validation failure — all failures for a single request are collected and returned together):
- 
+
 ```json
 {
   "timestamp": "2026-08-19T09:00:00",
@@ -610,11 +617,11 @@ Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are 
   "success": false
 }
 ```
- 
+
 > The four messages above illustrate the different validation failures this endpoint can return — a single request typically triggers one or a related few of them (e.g. an invalid plate together with an invalid year), not all four at once.
- 
+
 **Error response — `401 Unauthorized`** (caller is not `ADMIN`):
- 
+
 ```json
 {
   "timestamp": "2026-08-19T09:00:00",
@@ -624,13 +631,13 @@ Creates a new vehicle. Requires `ADMIN`. The plate must be unique; requests are 
   "success": false
 }
 ```
- 
+
 #### `GET /api/vehicles`
- 
+
 Lists all vehicles. Open to any authenticated caller.
- 
+
 **Success response — `200 OK`:**
- 
+
 ```json
 [
   {
@@ -659,15 +666,15 @@ Lists all vehicles. Open to any authenticated caller.
   }
 ]
 ```
- 
+
 #### `GET /api/vehicles/{id}`
- 
+
 Fetches a single vehicle by id. Open to any authenticated caller.
- 
+
 **Success response — `200 OK`:** same shape as a single item above.
- 
+
 **Error response — `404 Not Found`:**
- 
+
 ```json
 {
   "timestamp": "2026-08-19T09:00:00",
@@ -677,24 +684,24 @@ Fetches a single vehicle by id. Open to any authenticated caller.
   "success": false
 }
 ```
- 
+
 #### `PATCH /api/vehicles/{id}`
- 
+
 Updates one or more vehicle fields. Requires `ADMIN`. Only the fields present in the body are changed; omitted fields keep their existing value. Mileage can only be increased or left unchanged — a lower `km` than the vehicle's current value is rejected.
- 
+
 **Request body (partial):**
- 
+
 ```json
 {
   "brand": "Honda",
   "km": 20000
 }
 ```
- 
+
 **Success response — `200 OK`:** the full, updated `VehicleResponse` (same shape as above).
- 
+
 **Error response — `400 Bad Request`** (plate already taken by another vehicle):
- 
+
 ```json
 {
   "timestamp": "2026-08-19T09:00:00",
@@ -706,36 +713,36 @@ Updates one or more vehicle fields. Requires `ADMIN`. Only the fields present in
   "success": false
 }
 ```
- 
+
 #### `PATCH /api/vehicles/{id}/status`
- 
+
 Updates only the availability status. Requires `ADMIN`. `status` is passed as a query parameter, not a body.
- 
+
 **Request:**
- 
+
 ```
 PATCH /api/vehicles/5/status?status=OUT_OF_SERVICE
 ```
- 
+
 **Success response — `200 OK`:** the full, updated `VehicleResponse` with the new `status`.
- 
+
 #### `PATCH /api/vehicles/{id}/km-location`
- 
+
 Updates only mileage and/or location. Open to any authenticated caller (not just `ADMIN`) — this is the endpoint an `EMPLOYEE` uses after completing a job. Mileage can only be increased or left unchanged — a lower `km` than the vehicle's current value is rejected.
- 
+
 **Request body:**
- 
+
 ```json
 {
   "km": 45500,
   "location": "Ankara"
 }
 ```
- 
+
 **Success response — `200 OK`:** the full, updated `VehicleResponse`.
- 
+
 **Error response — `400 Bad Request`** (mileage decrease attempted):
- 
+
 ```json
 {
   "timestamp": "2026-08-19T09:00:00",
@@ -747,15 +754,15 @@ Updates only mileage and/or location. Open to any authenticated caller (not just
   "success": false
 }
 ```
- 
+
 **Error response — `404 Not Found`** if the vehicle doesn't exist.
- 
+
 #### `DELETE /api/vehicles/{id}`
- 
+
 Deletes a vehicle. Requires `ADMIN`.
- 
+
 **Success response:** `204 No Content`
- 
+
 **Error response — `404 Not Found`** if the vehicle doesn't exist (same shape as the `GET` 404 above).
 
 ### Appointment Service
@@ -799,8 +806,11 @@ Deletes a vehicle. Requires `ADMIN`.
 - [x] Appointment service — scheduling, overlap detection, availability lookup, status workflow
 - [x] API Gateway — routing, JWT validation, header propagation, CORS
 - [x] Frontend application — login, admin/employee dashboards, vehicle & employee management, appointment booking flow
+- [x] API Gateway added to `docker-compose.yml` for production-mode runs
 
 ## Contributing
+
+Contributions, issues, and feature requests are welcome!
 
 - Follow the existing package structure (`controller`, `service`, `repository`, `mapper`/`component`, `entity`, `dto`, `exception`, `config`) when adding features to a backend service
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (`feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`)
@@ -809,15 +819,17 @@ Deletes a vehicle. Requires `ADMIN`.
 - On the frontend, add new server state through an RTK Query API slice under `store/api/`, and keep shared types in sync with backend DTOs under `types/`
 
 ## Contributors
- 
+
+This project was built during a summer internship by:
+
 | Name | GitHub | Contribution |
 |---|---|---|
-| [Emir Özer] | [@FreeZeBoaRd](https://github.com/FreeZeBoaRd) | Vehicle Service |
-| [Muhammet Egehan Kırmızı] | [@SlinderSlaz](https://github.com/SlinderSlaz) | Appointment Service |
-| [Ömer Çıkan] | [@omercikan](https://github.com/omercikan) | Identity Service, API Gateway, Frontend |
+| Emir Özer | [@FreeZeBoaRd](https://github.com/FreeZeBoaRd) | Vehicle Service |
+| Muhammet Egehan Kırmızı | [@SlinderSlaz](https://github.com/SlinderSlaz) | Appointment Service |
+| Ömer Çıkan | [@omercikan](https://github.com/omercikan) | Identity Service, API Gateway, Frontend |
 
 ## License
 
-> This project is proprietary and intended for internal use at Yaltes only. Unauthorized copying, distribution, or use of this software outside the organization is not permitted.
+This project is licensed under the [MIT License](LICENSE) — feel free to use, modify, and learn from it.
 
-© 2026 Yaltes. All rights reserved.
+© 2026 The Voya Contributors.
