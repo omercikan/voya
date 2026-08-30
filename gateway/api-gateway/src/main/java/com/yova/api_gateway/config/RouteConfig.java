@@ -1,6 +1,6 @@
-package com.yaltes.api_gateway.config;
+package com.yova.api_gateway.config;
 
-import com.yaltes.api_gateway.filter.JwtAuthenticationFilter;
+import com.yova.api_gateway.filter.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

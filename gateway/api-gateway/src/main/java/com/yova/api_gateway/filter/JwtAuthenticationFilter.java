@@ -1,7 +1,7 @@
-package com.yaltes.api_gateway.filter;
+package com.yova.api_gateway.filter;
 
-import com.yaltes.api_gateway.dto.ApiResponse;
-import com.yaltes.api_gateway.security.JwtValidator;
+import com.yova.api_gateway.dto.ApiResponse;
+import com.yova.api_gateway.security.JwtValidator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -25,7 +25,8 @@ public class JwtAuthenticationFilter {
         return (request, next) -> {
             String token = extractTokenFromCookie(request);
 
-            if (token == null) return ServerResponse.status(401).body(ApiResponse.error("Bu işlemi yapabilmek için giriş yapmanız gerekiyor."));
+            if (token == null)
+                return ServerResponse.status(401).body(ApiResponse.error("Bu işlemi yapabilmek için giriş yapmanız gerekiyor."));
 
             try {
                 Claims claims = jwtValidator.validateAndExtractClaims(token);

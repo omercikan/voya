@@ -1,4 +1,4 @@
-package com.yaltes.api_gateway.config;
+package com.yova.api_gateway.config;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;

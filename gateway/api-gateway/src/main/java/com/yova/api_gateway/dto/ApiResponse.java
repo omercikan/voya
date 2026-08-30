@@ -1,4 +1,4 @@
-package com.yaltes.api_gateway.dto;
+package com.yova.api_gateway.dto;
 
 public record ApiResponse(boolean success, String message) {
 

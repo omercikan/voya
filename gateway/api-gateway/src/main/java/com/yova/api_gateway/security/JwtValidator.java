@@ -1,4 +1,4 @@
-package com.yaltes.api_gateway.security;
+package com.yova.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
