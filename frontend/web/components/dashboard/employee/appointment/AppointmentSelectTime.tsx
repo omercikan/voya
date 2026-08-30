@@ -6,6 +6,7 @@ import Table from "@/components/ui/Table";
 import { slots } from "@/constants/hourSlots";
 import CustomButton from "@/components/ui/CustomButton";
 import { setAppointment } from "@/store/slices/appointmentSlice";
+import { useEffect } from "react";
 
 const AppointmentSelectTime = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,6 +35,14 @@ const AppointmentSelectTime = () => {
     dispatch(setAppointment({ hourEnd: time }));
   };
 
+  useEffect(() => {
+    if (isSameDate) return;
+
+    if (appointment.hourStart > appointment.hourEnd) {
+      dispatch(setAppointment({ hourEnd: appointment.hourStart }));
+    }
+  }, [isSameDate, appointment.hourEnd, appointment.hourStart, dispatch]);
+
   return (
     <>
       <div className="flex flex-col space-y-1.5 pb-6">
@@ -49,7 +58,7 @@ const AppointmentSelectTime = () => {
         <Table
           theadTrClassName={isSameDate ? "grid-cols-1" : "grid-cols-2"}
           theads={[
-            `${appointment.dateStart.toUpperCase()} · BAŞLANGIÇ - BİTİŞ`,
+            `${appointment.dateStart.toUpperCase()} · BAŞLANGIÇ ${isSameDate ? "- BİTİŞ" : ""}`,
             isSameDate ? "" : `${appointment.dateEnd.toUpperCase()} · BİTİŞ`,
           ]}
         >
@@ -62,7 +71,7 @@ const AppointmentSelectTime = () => {
                   <td className="px-2 py-1.5">
                     <CustomButton
                       text={slot}
-                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
+                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${isSameDate && appointment.hourStart > slot ? "bg-gray-400! text-white! pointer-events-none!" : ""} ${
                         appointment.hourStart === `${slot}` ||
                         appointment.hourEnd === `${slot}`
                           ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
@@ -93,7 +102,7 @@ const AppointmentSelectTime = () => {
                   <td className="px-2 py-1.5">
                     <CustomButton
                       text={time}
-                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${
+                      className={`bg-card! justify-start shadow-none border border-border text-foreground! hover:bg-accent! hover:text-accent-foreground! font-bold! px-3! py-1.5! text-xs! ${appointment.hourStart > time ? "bg-gray-400! text-white! pointer-events-none!" : ""} ${
                         appointment.hourEnd === time
                           ? "bg-primary! hover:bg-primary! hover:text-primary-foreground! border-primary! text-primary-foreground!"
                           : ""
