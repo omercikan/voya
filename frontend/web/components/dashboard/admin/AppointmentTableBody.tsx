@@ -41,7 +41,7 @@ const AppointmentTableBody = ({
       key={appointment.id}
       className={`grid ${user?.role === UserRole.EMPLOYEE ? "grid-cols-6" : "grid-cols-8"} gap-12 px-6 py-1 not-last:border-b border-b-border transition-colors hover:bg-muted/50`}
     >
-      <TableData text={appointment.customer.fullName} />
+      <TableData text={appointment.customer?.fullName} />
 
       {appointment.vehicle ? (
         <TableData
