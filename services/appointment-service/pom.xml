@@ -8,7 +8,7 @@
         <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.yaltes</groupId>
+    <groupId>com.voya</groupId>
     <artifactId>appointment-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name/>
