@@ -1,25 +1,15 @@
 import { PiCarProfile } from "react-icons/pi";
 import { BiCheckShield } from "react-icons/bi";
-import Image from "next/image";
-import Logo from "@/assets/yaltes_logo.jpg";
 
 const AuthPanel = () => {
   return (
     <div className="hidden flex-col justify-between bg-sidebar p-12 lg:flex">
       <div className="flex items-center gap-3">
-        <Image
-          src={Logo}
-          alt="Yaltes"
-          width={40}
-          height={40}
-          priority={true}
-          quality={100}
-          className="rounded-md"
-        />
+        <div className="flex size-10 items-center justify-center rounded-md bg-sidebar-primary font-bold text-sidebar-primary-foreground">VYA</div>
 
         <div>
           <strong className="font-display text-lg font-bold tracking-[0.2em] text-sidebar-foreground">
-            YALTES
+            VOYA
           </strong>
           <p className="text-xs text-sidebar-foreground/60">Araç Randevu</p>
         </div>
@@ -50,7 +40,7 @@ const AuthPanel = () => {
       </div>
 
       <p className="text-xs text-sidebar-foreground/50">
-        © 2026 YALTES · Yalnızca kurum içi kullanım içindir
+        © 2026 VOYA · Yalnızca kurum içi kullanım içindir
       </p>
     </div>
   );
