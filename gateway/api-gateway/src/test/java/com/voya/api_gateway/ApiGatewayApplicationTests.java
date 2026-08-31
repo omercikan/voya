@@ -1,4 +1,4 @@
-package com.yova.api_gateway;
+package com.voya.api_gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
