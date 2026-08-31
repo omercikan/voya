@@ -15,7 +15,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     @Query("""
             SELECT a FROM Appointment a
             WHERE a.vehicleId = :vehicleId
-            AND a.status <> com.yaltes.appointment_service.entity.AppointmentStatus.CANCELLED
+            AND a.status <> com.voya.appointment_service.entity.AppointmentStatus.CANCELLED
             AND a.dateStart <= :dateEnd
             AND a.dateEnd >= :dateStart
             """)
@@ -29,7 +29,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("""
             SELECT a FROM Appointment a
-            WHERE a.status <> com.yaltes.appointment_service.entity.AppointmentStatus.CANCELLED
+            WHERE a.status <> com.voya.appointment_service.entity.AppointmentStatus.CANCELLED
             AND a.dateStart <= :toDate
             AND a.dateEnd >= :fromDate
             """)
