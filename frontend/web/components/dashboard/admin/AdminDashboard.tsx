@@ -65,7 +65,7 @@ const AdminDashboard = () => {
     <RoleGuard role={UserRole.ADMIN}>
       <Header
         title="Yönetici Paneli"
-        description="YALTES araç randevu süreçlerini, araçları ve çalışanları tek bir yerden kolayca yönetin."
+        description="VOYA araç randevu süreçlerini, araçları ve çalışanları tek bir yerden kolayca yönetin."
       />
 
       <div className="m-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
