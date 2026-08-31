@@ -13,10 +13,10 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: {
-    default: "Yaltes | Araç Randevu Sistemi",
-    template: "%s | Yaltes",
+    default: "Voya | Araç Randevu Sistemi",
+    template: "%s | Voya",
   },
-  description: "Yaltes araç bakım ve servis randevu yönetim platformu.",
+  description: "Voya araç bakım ve servis randevu yönetim platformu.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
